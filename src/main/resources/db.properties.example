@@ -1,0 +1,6 @@
+# Example Database Configuration Template
+# Copy this file to db.properties and set your local database credentials
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql://localhost:5432/railway_db
+db.user=postgres
+db.password=YOUR_PASSWORD_HERE

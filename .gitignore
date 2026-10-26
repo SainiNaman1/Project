@@ -1,0 +1,28 @@
+# Compiled binaries & build outputs
+bin/
+target/
+*.class
+
+# Bundled tools & portable Git
+.git_bin/
+
+# Bundled runtime dependencies (allow lib/*.jar)
+!lib/
+!lib/*.jar
+
+# IDE configurations
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Temporary & scratch files
+*.log
+*.tmp
+update_passwords.sql
