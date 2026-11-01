@@ -6,7 +6,8 @@ import java.util.Properties;
 
 /**
  * Loads and caches application and database configuration properties.
- * Reads db.properties from the classpath.
+ * Prioritizes environment variables (DB_URL, DB_USER, DB_PASSWORD, DB_DRIVER),
+ * followed by classpath db.properties, with secure defaults.
  */
 public final class AppConfig {
 
@@ -23,7 +24,7 @@ public final class AppConfig {
             if (is != null) {
                 properties.load(is);
             } else {
-                System.err.println("[AppConfig] WARNING: db.properties not found in classpath. Using defaults.");
+                System.err.println("[AppConfig] WARNING: db.properties not found in classpath. Using defaults/env.");
             }
         } catch (IOException e) {
             System.err.println("[AppConfig] ERROR loading db.properties: " + e.getMessage());
@@ -33,7 +34,22 @@ public final class AppConfig {
 
     public static String getProperty(String key, String defaultValue) {
         if (!initialized) init();
-        return properties.getProperty(key, defaultValue);
+
+        // 1. Check matching Environment Variable (e.g. db.url -> DB_URL)
+        String envKey = key.toUpperCase().replace('.', '_');
+        String envVal = System.getenv(envKey);
+        if (envVal != null && !envVal.isBlank()) {
+            return envVal.trim();
+        }
+
+        // 2. Check loaded properties file
+        String propVal = properties.getProperty(key);
+        if (propVal != null && !propVal.isBlank()) {
+            return propVal.trim();
+        }
+
+        // 3. Fallback to default
+        return defaultValue;
     }
 
     public static String getDbDriver() {
@@ -41,7 +57,7 @@ public final class AppConfig {
     }
 
     public static String getDbUrl() {
-        return getProperty("db.url", "jdbc:mysql://localhost:3306/railway_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
+        return getProperty("db.url", "jdbc:mysql://127.0.0.1:3306/railway_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
     }
 
     public static String getDbUser() {
@@ -49,6 +65,20 @@ public final class AppConfig {
     }
 
     public static String getDbPassword() {
-        return getProperty("db.password", "saini");
+        String envPass = System.getenv("DB_PASSWORD");
+        if (envPass != null) {
+            return envPass;
+        }
+        if (!initialized) init();
+        String propVal = properties.getProperty("db.password");
+        if (propVal != null) {
+            return propVal.trim();
+        }
+        return "";
+    }
+
+    public static boolean isDemoAutofillEnabled() {
+        String val = getProperty("app.demo.autofill", "false");
+        return Boolean.parseBoolean(val);
     }
 }

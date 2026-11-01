@@ -32,9 +32,15 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public Optional<Station> findById(long id) throws SQLException {
+        try (Connection conn = database.getConnection()) {
+            return findById(conn, id);
+        }
+    }
+
+    @Override
+    public Optional<Station> findById(Connection conn, long id) throws SQLException {
         String sql = "SELECT id, station_code, station_name, city, state FROM stations WHERE id = ?";
-        try (Connection conn = database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {

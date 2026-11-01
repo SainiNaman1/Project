@@ -16,10 +16,12 @@ import java.util.List;
  */
 public interface TrainService {
     List<Train> getAllActiveTrains() throws RailwayException;
+    List<TrainSearchResult> getAllAvailableTrains(LocalDate journeyDate) throws RailwayException;
     List<TrainSearchResult> searchTrains(long fromStationId, long toStationId, LocalDate journeyDate) throws RailwayException;
     List<RouteStop> getRouteForTrain(long trainId) throws RailwayException;
     int checkSeatAvailability(long trainId, LocalDate journeyDate, TravelClass travelClass) throws RailwayException;
     BigDecimal calculateFare(Train train, TravelClass travelClass, int distanceKm);
+    int getRouteDistanceKm(long trainId, long fromStationId, long toStationId) throws RailwayException;
     List<Station> getAllStations() throws RailwayException;
     List<RailwayRule> getAllActiveRules() throws RailwayException;
 }

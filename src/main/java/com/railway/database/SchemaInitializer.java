@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 /**
  * Automates initial schema creation, sample data provisioning, and self-healing
- * demo user credential verification.
+ * demo user credential verification for MySQL 8.x.
  */
 public final class SchemaInitializer {
 
@@ -23,25 +23,21 @@ public final class SchemaInitializer {
     }
 
     /**
-     * Initializes the database if tables do not exist, and guarantees that default
+     * Initializes the MySQL database if tables do not exist, and guarantees that default
      * demo accounts (admin / Admin@123, rahul / Rahul@123) have valid BCrypt hashes.
      */
     public static synchronized void initializeDatabase() {
         DatabaseConnection db = DatabaseConnection.getInstance();
         try (Connection conn = db.getConnection()) {
-            boolean isMysql = DatabaseConnection.getActiveDatabaseType().toLowerCase().contains("mysql");
-
             if (!tablesExist(conn)) {
-                System.out.println("[SchemaInitializer] Database tables not detected. Initializing schema...");
-                String schemaFile = isMysql ? "schema_mysql.sql" : "schema.sql";
-                String sampleDataFile = isMysql ? "sample_data_mysql.sql" : "sample_data.sql";
-
-                executeSqlScript(conn, schemaFile);
+                System.out.println("[SchemaInitializer] Database tables not detected. Initializing MySQL schema...");
+                executeSqlScript(conn, "schema_mysql.sql");
                 System.out.println("[SchemaInitializer] Schema initialized successfully. Seeding sample data...");
-                executeSqlScript(conn, sampleDataFile);
+                executeSqlScript(conn, "sample_data_mysql.sql");
                 System.out.println("[SchemaInitializer] Sample data seeded successfully.");
             } else {
-                System.out.println("[SchemaInitializer] Database schema exists. Verifying default demo accounts...");
+                System.out.println("[SchemaInitializer] Database schema exists. Checking for schema updates...");
+                ensureSchemaUpdates(conn);
             }
 
             // Self-healing: verify demo credentials have valid BCrypt hashes
@@ -59,9 +55,27 @@ public final class SchemaInitializer {
         try (ResultSet rs = meta.getTables(null, null, "users", new String[]{"TABLE"})) {
             if (rs.next()) return true;
         }
-        // Try uppercase for databases that store uppercase identifiers
         try (ResultSet rs = meta.getTables(null, null, "USERS", new String[]{"TABLE"})) {
             return rs.next();
+        }
+    }
+
+    private static void ensureSchemaUpdates(Connection conn) {
+        // Ensure audit_logs table exists
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("CREATE TABLE IF NOT EXISTS audit_logs (" +
+                    "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                    "user_id BIGINT NULL, " +
+                    "action VARCHAR(50) NOT NULL, " +
+                    "entity_type VARCHAR(50) NOT NULL, " +
+                    "entity_id VARCHAR(50) NULL, " +
+                    "details TEXT NULL, " +
+                    "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                    "INDEX idx_audit_user (user_id), " +
+                    "INDEX idx_audit_timestamp (timestamp)" +
+                    ") ENGINE=InnoDB;");
+        } catch (SQLException e) {
+            System.err.println("[SchemaInitializer] Notice while ensuring audit_logs table: " + e.getMessage());
         }
     }
 

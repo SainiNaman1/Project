@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +45,13 @@ public class TrainDAOImpl implements TrainDAO {
 
     @Override
     public Optional<Train> findById(long id) throws SQLException {
+        try (Connection conn = database.getConnection()) {
+            return findById(conn, id);
+        }
+    }
+
+    @Override
+    public Optional<Train> findById(Connection conn, long id) throws SQLException {
         String sql = "SELECT t.id, t.train_number, t.train_name, t.train_type, t.base_fare_per_km, t.active, " +
                      "s1.id AS src_id, s1.station_code AS src_code, s1.station_name AS src_name, s1.city AS src_city, s1.state AS src_state, " +
                      "s2.id AS dst_id, s2.station_code AS dst_code, s2.station_name AS dst_name, s2.city AS dst_city, s2.state AS dst_state " +
@@ -52,8 +60,7 @@ public class TrainDAOImpl implements TrainDAO {
                      "JOIN stations s2 ON t.dest_station_id = s2.id " +
                      "WHERE t.id = ?";
 
-        try (Connection conn = database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -88,7 +95,6 @@ public class TrainDAOImpl implements TrainDAO {
 
     @Override
     public List<Train> findTrainsBetweenStations(long sourceStationId, long destStationId) throws SQLException {
-        // Query returns active trains that stop at both stations where the source stop sequence < dest stop sequence
         String sql = "SELECT DISTINCT t.id, t.train_number, t.train_name, t.train_type, t.base_fare_per_km, t.active, " +
                      "s1.id AS src_id, s1.station_code AS src_code, s1.station_name AS src_name, s1.city AS src_city, s1.state AS src_state, " +
                      "s2.id AS dst_id, s2.station_code AS dst_code, s2.station_name AS dst_name, s2.city AS dst_city, s2.state AS dst_state " +
@@ -120,19 +126,21 @@ public class TrainDAOImpl implements TrainDAO {
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, train.getTrainNumber().trim());
-            stmt.setString(2, train.getTrainName().trim());
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, train.getTrainNumber());
+            stmt.setString(2, train.getTrainName());
             stmt.setString(3, train.getTrainType().name());
             stmt.setLong(4, train.getSourceStation().getId());
             stmt.setLong(5, train.getDestStation().getId());
             stmt.setBigDecimal(6, train.getBaseFarePerKm());
             stmt.setBoolean(7, train.isActive());
 
-            stmt.executeUpdate();
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    train.setId(rs.getLong(1));
+            int affected = stmt.executeUpdate();
+            if (affected > 0) {
+                try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        train.setId(keys.getLong(1));
+                    }
                 }
             }
         }
@@ -177,7 +185,6 @@ public class TrainDAOImpl implements TrainDAO {
                 rs.getString("dst_state")
         );
 
-        // Polymorphic instantiation based on type
         return switch (type) {
             case RAJDHANI -> new RajdhaniExpress(id, number, name, src, dst, baseFare, active);
             case SHATABDI -> new ShatabdiExpress(id, number, name, src, dst, baseFare, active);

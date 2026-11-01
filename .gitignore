@@ -26,3 +26,5 @@ Thumbs.db
 *.log
 *.tmp
 update_passwords.sql
+
+scratch/

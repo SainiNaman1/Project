@@ -1,6 +1,7 @@
 package com.railway.dao;
 
 import com.railway.model.Train;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,9 @@ import java.util.Optional;
 public interface TrainDAO {
     List<Train> findAllActive() throws SQLException;
     Optional<Train> findById(long id) throws SQLException;
+    default Optional<Train> findById(Connection conn, long id) throws SQLException {
+        return findById(id);
+    }
     Optional<Train> findByNumber(String trainNumber) throws SQLException;
     List<Train> findTrainsBetweenStations(long sourceStationId, long destStationId) throws SQLException;
     Train save(Train train) throws SQLException;

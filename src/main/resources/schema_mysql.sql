@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS reservation_passengers (
     FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 8. Seat Assignments Table
+-- 8. Seat Assignments Table (with DB-level seat uniqueness per train & date)
 CREATE TABLE IF NOT EXISTS seat_assignments (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     train_id BIGINT NOT NULL,
@@ -123,6 +123,7 @@ CREATE TABLE IF NOT EXISTS seat_assignments (
     FOREIGN KEY (train_id) REFERENCES trains(id) ON DELETE CASCADE,
     FOREIGN KEY (seat_id) REFERENCES seats(id) ON DELETE CASCADE,
     FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_train_date_seat (train_id, journey_date, seat_id),
     INDEX idx_date_availability (train_id, journey_date, seat_id, status)
 ) ENGINE=InnoDB;
 
@@ -134,4 +135,17 @@ CREATE TABLE IF NOT EXISTS railway_rules (
     content TEXT NOT NULL,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 10. Audit Logs Table (Administrative actions and booking lifecycle events)
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NULL,
+    action VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id VARCHAR(50) NULL,
+    details TEXT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_audit_user (user_id),
+    INDEX idx_audit_timestamp (timestamp)
 ) ENGINE=InnoDB;

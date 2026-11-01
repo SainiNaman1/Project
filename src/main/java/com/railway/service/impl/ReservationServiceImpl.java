@@ -22,9 +22,11 @@ import com.railway.model.Seat;
 import com.railway.model.Station;
 import com.railway.model.Train;
 import com.railway.model.dto.BookingRequest;
+import com.railway.model.dto.FareBreakdownDTO;
 import com.railway.model.enums.BookingStatus;
+import com.railway.security.AuthorizationService;
+import com.railway.service.FareCalculationService;
 import com.railway.service.ReservationService;
-import com.railway.util.FareCalculator;
 import com.railway.util.PNRGenerator;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -36,27 +38,39 @@ import java.util.Optional;
 
 public class ReservationServiceImpl implements ReservationService {
 
+    @FunctionalInterface
+    public interface ConnectionProvider {
+        Connection getConnection() throws SQLException;
+    }
+
     private final ReservationDAO reservationDAO;
     private final SeatDAO seatDAO;
     private final TrainDAO trainDAO;
     private final RouteDAO routeDAO;
     private final StationDAO stationDAO;
-    private final DatabaseConnection database = DatabaseConnection.getInstance();
+    private final FareCalculationService fareCalculationService;
+    private final ConnectionProvider connectionProvider;
 
     public ReservationServiceImpl() {
-        this.reservationDAO = new ReservationDAOImpl();
-        this.seatDAO = new SeatDAOImpl();
-        this.trainDAO = new TrainDAOImpl();
-        this.routeDAO = new RouteDAOImpl();
-        this.stationDAO = new StationDAOImpl();
+        this(new ReservationDAOImpl(), new SeatDAOImpl(), new TrainDAOImpl(), new RouteDAOImpl(), new StationDAOImpl(), new FareCalculationServiceImpl(), DatabaseConnection.getInstance()::getConnection);
     }
 
     public ReservationServiceImpl(ReservationDAO reservationDAO, SeatDAO seatDAO, TrainDAO trainDAO, RouteDAO routeDAO, StationDAO stationDAO) {
+        this(reservationDAO, seatDAO, trainDAO, routeDAO, stationDAO, new FareCalculationServiceImpl(), DatabaseConnection.getInstance()::getConnection);
+    }
+
+    public ReservationServiceImpl(ReservationDAO reservationDAO, SeatDAO seatDAO, TrainDAO trainDAO, RouteDAO routeDAO, StationDAO stationDAO, FareCalculationService fareCalculationService) {
+        this(reservationDAO, seatDAO, trainDAO, routeDAO, stationDAO, fareCalculationService, DatabaseConnection.getInstance()::getConnection);
+    }
+
+    public ReservationServiceImpl(ReservationDAO reservationDAO, SeatDAO seatDAO, TrainDAO trainDAO, RouteDAO routeDAO, StationDAO stationDAO, FareCalculationService fareCalculationService, ConnectionProvider connectionProvider) {
         this.reservationDAO = reservationDAO;
         this.seatDAO = seatDAO;
         this.trainDAO = trainDAO;
         this.routeDAO = routeDAO;
         this.stationDAO = stationDAO;
+        this.fareCalculationService = fareCalculationService;
+        this.connectionProvider = connectionProvider != null ? connectionProvider : DatabaseConnection.getInstance()::getConnection;
     }
 
     @Override
@@ -70,7 +84,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new BookingException("A reservation must include between 1 and 6 passengers.");
         }
         if (request.getJourneyDate() == null || request.getJourneyDate().isBefore(LocalDate.now())) {
-            throw new BookingException("Journey date cannot be in the past.");
+            throw new BookingException("Journey date cannot be in the past. Please select today or a future date.");
         }
         for (ReservationPassenger p : passengers) {
             if (p.getPassengerName() == null || p.getPassengerName().trim().length() < 2) {
@@ -83,25 +97,36 @@ public class ReservationServiceImpl implements ReservationService {
 
         Connection conn = null;
         try {
-            conn = database.getConnection();
+            conn = connectionProvider.getConnection();
             conn.setAutoCommit(false); // START TRANSACTION
 
-            // 2. Fetch train and stations
-            Optional<Train> trainOpt = trainDAO.findById(request.getTrainId());
+            // 2. Fetch train and stations using active transaction connection
+            Optional<Train> trainOpt = trainDAO.findById(conn, request.getTrainId());
             if (trainOpt.isEmpty()) {
                 throw new BookingException("Train with ID " + request.getTrainId() + " not found.");
             }
             Train train = trainOpt.get();
 
-            Optional<Station> fromOpt = stationDAO.findById(request.getFromStationId());
-            Optional<Station> toOpt = stationDAO.findById(request.getToStationId());
+            Optional<Station> fromOpt = stationDAO.findById(conn, request.getFromStationId());
+            Optional<Station> toOpt = stationDAO.findById(conn, request.getToStationId());
             if (fromOpt.isEmpty() || toOpt.isEmpty()) {
                 throw new BookingException("Origin or destination station not found.");
             }
             Station fromStation = fromOpt.get();
             Station toStation = toOpt.get();
 
-            // 3. Atomically lock candidate available seats using SELECT ... FOR UPDATE
+            // 3. Validate route sequence and calculate authoritative distance (NO silent fallback!)
+            int distanceKm = routeDAO.calculateDistanceKm(conn, train.getId(), fromStation.getId(), toStation.getId());
+            if (distanceKm <= 0) {
+                conn.rollback();
+                throw new BookingException(String.format(
+                        "Invalid route selection: Station %s (%s) does not precede station %s (%s) on train %s (%s).",
+                        fromStation.getStationName(), fromStation.getStationCode(),
+                        toStation.getStationName(), toStation.getStationCode(),
+                        train.getTrainNumber(), train.getTrainName()));
+            }
+
+            // 4. Atomically lock candidate available seats using SELECT ... FOR UPDATE
             int requestedCount = passengers.size();
             List<Seat> lockedSeats = seatDAO.lockAvailableSeatsForUpdate(
                     conn,
@@ -117,20 +142,18 @@ public class ReservationServiceImpl implements ReservationService {
                         request.getTravelClass().getDisplayName() + ". Requested: " + requestedCount);
             }
 
-            // 4. Generate unique 10-digit PNR
+            // 5. Generate collision-resistant unique 10-digit PNR
             String pnr = PNRGenerator.generatePNR();
             while (reservationDAO.existsByPnr(conn, pnr)) {
                 pnr = PNRGenerator.generatePNR();
             }
 
-            // 5. Compute Fare
-            int distanceKm = routeDAO.calculateDistanceKm(train.getId(), fromStation.getId(), toStation.getId());
-            if (distanceKm <= 0) {
-                distanceKm = 100; // Default minimum distance fallback
-            }
-            BigDecimal totalFare = FareCalculator.calculateTotalFare(train, request.getTravelClass(), distanceKm, requestedCount);
+            // 6. Compute Authoritative Total Fare via FareCalculationService
+            FareBreakdownDTO fareBreakdown = fareCalculationService.calculateFareBreakdown(
+                    train, request.getTravelClass(), distanceKm, requestedCount);
+            BigDecimal totalFare = fareBreakdown.getTotalFare();
 
-            // 6. Save Master Reservation
+            // 7. Save Master Reservation
             Reservation reservation = new Reservation(
                     0L,
                     pnr,
@@ -149,7 +172,7 @@ public class ReservationServiceImpl implements ReservationService {
 
             reservationDAO.save(conn, reservation);
 
-            // 7. Assign locked seats to passengers and save
+            // 8. Assign locked seats to passengers and save
             for (int i = 0; i < requestedCount; i++) {
                 ReservationPassenger passenger = passengers.get(i);
                 Seat allocatedSeat = lockedSeats.get(i);
@@ -173,7 +196,7 @@ public class ReservationServiceImpl implements ReservationService {
             reservationDAO.savePassengers(conn, reservation.getId(), passengers);
             reservation.setPassengers(passengers);
 
-            // 8. Commit Transaction
+            // 9. Commit Transaction
             conn.commit();
             return reservation;
 
@@ -197,7 +220,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         Connection conn = null;
         try {
-            conn = database.getConnection();
+            conn = connectionProvider.getConnection();
             conn.setAutoCommit(false); // START TRANSACTION
 
             Optional<Reservation> resOpt = reservationDAO.findByPnrForUpdate(conn, pnr.trim());
@@ -251,9 +274,7 @@ public class ReservationServiceImpl implements ReservationService {
             Reservation res = resOpt.get();
 
             // Security check: only owner or admin can view ticket details
-            if (!SessionContext.isAdmin() && res.getUserId() != requestingUserId) {
-                throw new UnauthorizedException("You are not authorized to view this ticket.");
-            }
+            AuthorizationService.requireReservationAccess(res.getUserId());
 
             // Attach train details if missing
             if (res.getTrain() == null) {
@@ -282,9 +303,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public List<Reservation> getAllReservations() throws RailwayException {
-        if (!SessionContext.isAdmin()) {
-            throw new UnauthorizedException("Administrative rights required to view all reservations.");
-        }
+        AuthorizationService.requireAdmin();
         try {
             List<Reservation> list = reservationDAO.findAll();
             for (Reservation res : list) {

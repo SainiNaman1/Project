@@ -6,25 +6,21 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Manages JDBC database connections with resilient auto-detection.
- * Supports both MySQL (localhost:3306) and PostgreSQL (localhost:5432).
+ * Manages JDBC database connections for MySQL 8.x.
+ * Connection configuration is loaded via AppConfig (supporting environment
+ * variables and classpath db.properties).
  */
 public final class DatabaseConnection {
 
     private static volatile DatabaseConnection instance;
-    private static String activeDatabaseType = "Unknown";
+    private static final String DATABASE_TYPE = "MySQL 8.0";
 
     static {
-        // Register MySQL Driver
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException ignored) {}
-
-        // Register PostgreSQL Driver
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException ignored) {}
-
+            Class.forName(AppConfig.getDbDriver());
+        } catch (ClassNotFoundException e) {
+            System.err.println("[DatabaseConnection] Warning: MySQL JDBC driver class not found on classpath: " + e.getMessage());
+        }
         AppConfig.init();
     }
 
@@ -43,49 +39,24 @@ public final class DatabaseConnection {
     }
 
     /**
-     * Obtains a fresh JDBC Connection.
-     * Tries the primary configured database first. If unavailable, seamlessly
-     * attempts fallback to local MySQL or PostgreSQL.
+     * Obtains a fresh JDBC Connection from configured settings.
      */
     public Connection getConnection() throws SQLException {
-        // 1. Try primary configured connection from db.properties
+        String url = AppConfig.getDbUrl();
+        String user = AppConfig.getDbUser();
+        String pass = AppConfig.getDbPassword();
+
         try {
-            Connection conn = DriverManager.getConnection(
-                    AppConfig.getDbUrl(),
-                    AppConfig.getDbUser(),
-                    AppConfig.getDbPassword()
-            );
+            Connection conn = DriverManager.getConnection(url, user, pass);
             if (conn != null && conn.isValid(2)) {
-                activeDatabaseType = AppConfig.getDbUrl().contains("mysql") ? "MySQL" : "PostgreSQL";
                 return conn;
             }
-        } catch (SQLException primaryEx) {
-            System.err.println("[DatabaseConnection] Primary connection error: " + primaryEx.getMessage());
+        } catch (SQLException ex) {
+            throw new SQLException(
+                    String.format("Could not connect to MySQL database at %s. Please ensure MySQL server is running and database exists. Error: %s",
+                            url, ex.getMessage()), ex);
         }
-
-        // 2. Fallback: Try MySQL 8.0 on 127.0.0.1:3306
-        try {
-            String mysqlUrl = "jdbc:mysql://127.0.0.1:3306/railway_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-            Connection mysqlConn = DriverManager.getConnection(mysqlUrl, "root", "saini");
-            if (mysqlConn != null && mysqlConn.isValid(2)) {
-                activeDatabaseType = "MySQL";
-                return mysqlConn;
-            }
-        } catch (SQLException mysqlEx) {
-            System.err.println("[DatabaseConnection] MySQL fallback error: " + mysqlEx.getMessage());
-        }
-
-        // 3. Fallback: Try PostgreSQL on localhost:5432
-        try {
-            String pgUrl = "jdbc:postgresql://localhost:5432/railway_db";
-            Connection pgConn = DriverManager.getConnection(pgUrl, "postgres", "root");
-            if (pgConn != null && pgConn.isValid(2)) {
-                activeDatabaseType = "PostgreSQL (Fallback)";
-                return pgConn;
-            }
-        } catch (SQLException ignored) {}
-
-        throw new SQLException("Could not connect to database. Please ensure MySQL (port 3306) or PostgreSQL (port 5432) is running and railway_db exists.");
+        throw new SQLException("Unable to establish valid MySQL connection to " + url);
     }
 
     public boolean testConnection() {
@@ -98,7 +69,7 @@ public final class DatabaseConnection {
     }
 
     public static String getActiveDatabaseType() {
-        return activeDatabaseType;
+        return DATABASE_TYPE;
     }
 
     public static void rollbackQuietly(Connection conn) {

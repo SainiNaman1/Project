@@ -17,6 +17,7 @@ import javax.swing.border.Border;
 public final class UITheme {
 
     public static final Color PRIMARY_NAVY = new Color(20, 50, 95);
+    public static final Color SECONDARY_SLATE = new Color(51, 65, 85);
     public static final Color ACCENT_BLUE = new Color(30, 90, 160);
     public static final Color ACCENT_GREEN = new Color(40, 140, 70);
     public static final Color ACCENT_RED = new Color(180, 40, 40);
@@ -50,6 +51,16 @@ public final class UITheme {
         JButton button = new JButton(text);
         button.setFont(FONT_BODY_BOLD);
         button.setBackground(PRIMARY_NAVY);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        return button;
+    }
+
+    public static JButton createSecondaryButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(FONT_BODY_BOLD);
+        button.setBackground(SECONDARY_SLATE);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));

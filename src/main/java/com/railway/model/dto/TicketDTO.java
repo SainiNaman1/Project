@@ -20,13 +20,12 @@ public class TicketDTO {
     }
 
     /**
-     * Generates an official ASCII-formatted ticket preview suitable for viewing
-     * in the UI or exporting as text.
+     * Generates an official formatted ticket preview.
+     * Notes that platform assignment is live operational information, not a permanent booking guarantee.
      */
     public String generatePrintableText() {
         StringBuilder sb = new StringBuilder();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         sb.append("================================================================================\n");
         sb.append("                       INDIAN RAILWAYS SIMULATION SYSTEM                        \n");
@@ -49,21 +48,27 @@ public class TicketDTO {
         sb.append("--------------------------------------------------------------------------------\n");
         
         int sNo = 1;
-        for (ReservationPassenger p : reservation.getPassengers()) {
-            sb.append(String.format(" %-4d | %-25s | %-4d | %-6s | %-6s | %-4d (%s)\n",
-                    sNo++,
-                    p.getPassengerName(),
-                    p.getAge(),
-                    p.getGender().getLabel(),
-                    p.getAssignedCoach(),
-                    p.getAssignedSeatNumber(),
-                    p.getAssignedBerth().getLabel()));
+        if (reservation.getPassengers() != null) {
+            for (ReservationPassenger p : reservation.getPassengers()) {
+                sb.append(String.format(" %-4d | %-25s | %-4d | %-6s | %-6s | %-4d (%s)\n",
+                        sNo++,
+                        p.getPassengerName(),
+                        p.getAge(),
+                        p.getGender().getLabel(),
+                        p.getAssignedCoach(),
+                        p.getAssignedSeatNumber(),
+                        p.getAssignedBerth().getLabel()));
+            }
         }
         sb.append("--------------------------------------------------------------------------------\n");
-        sb.append(String.format(" TOTAL FARE: INR %-15s (INCLUSIVE OF GST & RESERVATION FEE)\n", reservation.getTotalFare()));
+        sb.append(String.format(" TOTAL FARE: INR %-15s (INCLUSIVE OF GST & RESERVATION CHARGE)\n", reservation.getTotalFare()));
         sb.append(String.format(" BOOKED ON : %s\n", reservation.getBookingTimestamp() != null ? reservation.getBookingTimestamp().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss")) : "N/A"));
+        sb.append("--------------------------------------------------------------------------------\n");
+        sb.append(" LIVE OPERATIONAL NOTICE:\n");
+        sb.append(" Scheduled platform allocations are operational information subject to dynamic station\n");
+        sb.append(" reassignment. Please verify station display boards upon arrival.\n");
         sb.append("================================================================================\n");
-        sb.append(" Note: This is an educational simulation document. Valid ID required during travel.\n");
+        sb.append(" Note: Educational desktop simulation. Valid photo identity card required for travel.\n");
         sb.append("================================================================================\n");
 
         return sb.toString();

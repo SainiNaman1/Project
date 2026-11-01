@@ -9,7 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +19,13 @@ public class RouteDAOImpl implements RouteDAO {
 
     @Override
     public List<RouteStop> findStopsByTrainId(long trainId) throws SQLException {
+        try (Connection conn = database.getConnection()) {
+            return findStopsByTrainId(conn, trainId);
+        }
+    }
+
+    @Override
+    public List<RouteStop> findStopsByTrainId(Connection conn, long trainId) throws SQLException {
         String sql = "SELECT r.id, r.train_id, r.stop_sequence, r.arrival_time, r.departure_time, " +
                      "r.halt_minutes, r.distance_from_origin_km, r.scheduled_platform, " +
                      "s.id AS stn_id, s.station_code, s.station_name, s.city, s.state " +
@@ -28,8 +34,7 @@ public class RouteDAOImpl implements RouteDAO {
                      "WHERE r.train_id = ? ORDER BY r.stop_sequence ASC";
 
         List<RouteStop> stops = new ArrayList<>();
-        try (Connection conn = database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, trainId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -42,6 +47,13 @@ public class RouteDAOImpl implements RouteDAO {
 
     @Override
     public Optional<RouteStop> findStop(long trainId, long stationId) throws SQLException {
+        try (Connection conn = database.getConnection()) {
+            return findStop(conn, trainId, stationId);
+        }
+    }
+
+    @Override
+    public Optional<RouteStop> findStop(Connection conn, long trainId, long stationId) throws SQLException {
         String sql = "SELECT r.id, r.train_id, r.stop_sequence, r.arrival_time, r.departure_time, " +
                      "r.halt_minutes, r.distance_from_origin_km, r.scheduled_platform, " +
                      "s.id AS stn_id, s.station_code, s.station_name, s.city, s.state " +
@@ -49,8 +61,7 @@ public class RouteDAOImpl implements RouteDAO {
                      "JOIN stations s ON r.station_id = s.id " +
                      "WHERE r.train_id = ? AND r.station_id = ?";
 
-        try (Connection conn = database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, trainId);
             stmt.setLong(2, stationId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -64,9 +75,15 @@ public class RouteDAOImpl implements RouteDAO {
 
     @Override
     public void updatePlatform(long trainId, long stationId, int platformNumber) throws SQLException {
+        try (Connection conn = database.getConnection()) {
+            updatePlatform(conn, trainId, stationId, platformNumber);
+        }
+    }
+
+    @Override
+    public void updatePlatform(Connection conn, long trainId, long stationId, int platformNumber) throws SQLException {
         String sql = "UPDATE route_stops SET scheduled_platform = ? WHERE train_id = ? AND station_id = ?";
-        try (Connection conn = database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, platformNumber);
             stmt.setLong(2, trainId);
             stmt.setLong(3, stationId);
@@ -76,13 +93,21 @@ public class RouteDAOImpl implements RouteDAO {
 
     @Override
     public int calculateDistanceKm(long trainId, long fromStationId, long toStationId) throws SQLException {
+        try (Connection conn = database.getConnection()) {
+            return calculateDistanceKm(conn, trainId, fromStationId, toStationId);
+        }
+    }
+
+    @Override
+    public int calculateDistanceKm(Connection conn, long trainId, long fromStationId, long toStationId) throws SQLException {
+        // Enforce r1.stop_sequence < r2.stop_sequence to prevent reversed journey bookings
         String sql = "SELECT (r2.distance_from_origin_km - r1.distance_from_origin_km) AS distance " +
                      "FROM route_stops r1, route_stops r2 " +
                      "WHERE r1.train_id = ? AND r1.station_id = ? " +
-                     "  AND r2.train_id = ? AND r2.station_id = ?";
+                     "  AND r2.train_id = ? AND r2.station_id = ? " +
+                     "  AND r1.stop_sequence < r2.stop_sequence";
 
-        try (Connection conn = database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, trainId);
             stmt.setLong(2, fromStationId);
             stmt.setLong(3, trainId);
@@ -90,20 +115,26 @@ public class RouteDAOImpl implements RouteDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     int dist = rs.getInt("distance");
-                    return Math.max(dist, 0);
+                    return Math.max(dist, 1);
                 }
             }
         }
-        return 0;
+        return -1; // Indicates invalid route order or station not served by this train
     }
 
     @Override
     public void saveStops(long trainId, List<RouteStop> stops) throws SQLException {
+        try (Connection conn = database.getConnection()) {
+            saveStops(conn, trainId, stops);
+        }
+    }
+
+    @Override
+    public void saveStops(Connection conn, long trainId, List<RouteStop> stops) throws SQLException {
         String sql = "INSERT INTO route_stops (train_id, station_id, stop_sequence, arrival_time, departure_time, halt_minutes, distance_from_origin_km, scheduled_platform) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             for (RouteStop stop : stops) {
                 stmt.setLong(1, trainId);
                 stmt.setLong(2, stop.getStation().getId());

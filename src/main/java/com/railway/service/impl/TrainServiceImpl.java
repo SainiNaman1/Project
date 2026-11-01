@@ -23,6 +23,7 @@ import com.railway.util.FareCalculator;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,6 +62,53 @@ public class TrainServiceImpl implements TrainService {
     }
 
     @Override
+    public List<TrainSearchResult> getAllAvailableTrains(LocalDate journeyDate) throws RailwayException {
+        if (journeyDate == null || journeyDate.isBefore(LocalDate.now())) {
+            journeyDate = LocalDate.now();
+        }
+        try {
+            List<Train> trains = trainDAO.findAllActive();
+            List<TrainSearchResult> results = new ArrayList<>();
+
+            for (Train train : trains) {
+                List<RouteStop> stops = routeDAO.findStopsByTrainId(train.getId());
+                RouteStop srcStop;
+                RouteStop dstStop;
+                int distanceKm;
+
+                if (stops != null && stops.size() >= 2) {
+                    srcStop = stops.get(0);
+                    dstStop = stops.get(stops.size() - 1);
+                    distanceKm = dstStop.getDistanceFromOriginKm() - srcStop.getDistanceFromOriginKm();
+                    if (distanceKm <= 0) {
+                        distanceKm = 500;
+                    }
+                } else {
+                    srcStop = new RouteStop(0L, train.getId(), train.getSourceStation(), 1,
+                            LocalTime.of(8, 0), LocalTime.of(8, 0), 0, 0, 1);
+                    dstStop = new RouteStop(0L, train.getId(), train.getDestStation(), 2,
+                            LocalTime.of(20, 0), LocalTime.of(20, 0), 0, 500, 1);
+                    distanceKm = 500;
+                }
+
+                TrainSearchResult result = new TrainSearchResult(train, srcStop, dstStop, distanceKm);
+
+                for (TravelClass tc : TravelClass.values()) {
+                    int available = seatDAO.getAvailableSeatCount(train.getId(), journeyDate, tc);
+                    result.getAvailableSeats().put(tc, available);
+
+                    BigDecimal fare = FareCalculator.calculateSinglePassengerFare(train, tc, distanceKm);
+                    result.getEstimatedFares().put(tc, fare);
+                }
+                results.add(result);
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new RailwayException("Error loading available trains: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public List<TrainSearchResult> searchTrains(long fromStationId, long toStationId, LocalDate journeyDate) throws RailwayException {
         if (fromStationId == toStationId) {
             throw new ValidationException("Boarding and destination stations cannot be the same.");
@@ -82,11 +130,14 @@ public class TrainServiceImpl implements TrainService {
                     RouteStop dstStop = dstStopOpt.get();
 
                     if (srcStop.getStopSequence() < dstStop.getStopSequence()) {
-                        int distanceKm = Math.max(dstStop.getDistanceFromOriginKm() - srcStop.getDistanceFromOriginKm(), 50);
+                        int distanceKm = dstStop.getDistanceFromOriginKm() - srcStop.getDistanceFromOriginKm();
+                        if (distanceKm <= 0) {
+                            continue; // Skip invalid sequences
+                        }
 
                         TrainSearchResult result = new TrainSearchResult(train, srcStop, dstStop, distanceKm);
 
-                        // Populate seat availability and fares across travel classes
+                        // Populate seat availability and authoritative fares across travel classes
                         for (TravelClass tc : TravelClass.values()) {
                             int available = seatDAO.getAvailableSeatCount(train.getId(), journeyDate, tc);
                             result.getAvailableSeats().put(tc, available);
@@ -128,6 +179,19 @@ public class TrainServiceImpl implements TrainService {
     }
 
     @Override
+    public int getRouteDistanceKm(long trainId, long fromStationId, long toStationId) throws RailwayException {
+        try {
+            int dist = routeDAO.calculateDistanceKm(trainId, fromStationId, toStationId);
+            if (dist <= 0) {
+                throw new ValidationException("Selected stations are not served in this direction by the train.");
+            }
+            return dist;
+        } catch (SQLException e) {
+            throw new RailwayException("Error calculating route distance: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public List<Station> getAllStations() throws RailwayException {
         try {
             return stationDAO.findAll();
@@ -141,7 +205,7 @@ public class TrainServiceImpl implements TrainService {
         try {
             return ruleDAO.findAllActive();
         } catch (SQLException e) {
-            throw new RailwayException("Error retrieving railway rules: " + e.getMessage(), e);
+            throw new RailwayException("Error fetching railway rules: " + e.getMessage(), e);
         }
     }
 }
