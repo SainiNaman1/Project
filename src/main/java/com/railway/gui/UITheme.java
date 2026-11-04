@@ -10,10 +10,6 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
-/**
- * Centralized UI theme and styling helper for the Swing presentation layer.
- * Configures the modern FlatLaf Look and Feel with Indian Railways Navy aesthetic.
- */
 public final class UITheme {
 
     public static final Color PRIMARY_NAVY = new Color(20, 50, 95);

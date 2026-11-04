@@ -3,10 +3,6 @@ package com.railway.model;
 import com.railway.model.enums.Role;
 import java.time.LocalDateTime;
 
-/**
- * Represents an authorized railway operations administrator.
- * Demonstrates INHERITANCE and POLYMORPHISM.
- */
 public class AdminUser extends User {
     private String department;
 

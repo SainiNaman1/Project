@@ -4,18 +4,11 @@ import com.railway.config.SessionContext;
 import com.railway.exception.UnauthorizedException;
 import com.railway.model.User;
 
-/**
- * Centralized Role-Based Access Control (RBAC) security validator.
- * Enforces permission checks inside service-layer business logic.
- */
 public final class AuthorizationService {
 
     private AuthorizationService() {
     }
 
-    /**
-     * Enforces that an active, authenticated user session exists.
-     */
     public static User requireAuthenticated() throws UnauthorizedException {
         User user = SessionContext.getCurrentUser();
         if (user == null) {
@@ -24,9 +17,6 @@ public final class AuthorizationService {
         return user;
     }
 
-    /**
-     * Enforces that the current session holds administrator privileges.
-     */
     public static User requireAdmin() throws UnauthorizedException {
         User user = requireAuthenticated();
         if (!user.hasAdminPrivileges()) {
@@ -35,9 +25,6 @@ public final class AuthorizationService {
         return user;
     }
 
-    /**
-     * Enforces that the current user owns the target reservation or possesses administrative privileges.
-     */
     public static void requireReservationAccess(long reservationOwnerUserId) throws UnauthorizedException {
         User user = requireAuthenticated();
         if (!user.hasAdminPrivileges() && user.getId() != reservationOwnerUserId) {

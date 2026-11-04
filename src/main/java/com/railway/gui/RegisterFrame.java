@@ -22,11 +22,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-/**
- * Passenger account registration dialog.
- * Features a spacious 2-column responsive layout preventing field clipping on high-DPI displays.
- * Role is strictly locked to PASSENGER.
- */
 public class RegisterFrame extends JDialog {
 
     private final AuthService authService;
@@ -51,7 +46,6 @@ public class RegisterFrame extends JDialog {
         setResizable(true);
         setLayout(new BorderLayout());
 
-        // 1. Top Header Banner
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setBackground(UITheme.PRIMARY_NAVY);
@@ -71,7 +65,6 @@ public class RegisterFrame extends JDialog {
 
         add(headerPanel, BorderLayout.NORTH);
 
-        // 2. Central Form Panel (2-Column GridBagLayout)
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(Color.WHITE);
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 28, 20, 28));
@@ -81,7 +74,6 @@ public class RegisterFrame extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0.5;
 
-        // --- Row 0: Section Header: Personal Details ---
         JLabel lblSec1 = new JLabel("Personal Information");
         lblSec1.setFont(UITheme.FONT_HEADER);
         lblSec1.setForeground(UITheme.PRIMARY_NAVY);
@@ -89,7 +81,6 @@ public class RegisterFrame extends JDialog {
         gbc.insets = new Insets(4, 10, 8, 10);
         formPanel.add(lblSec1, gbc);
 
-        // --- Row 1: Full Name (col 0) & Email Address (col 1) Labels ---
         gbc.gridwidth = 1;
         gbc.insets = new Insets(4, 10, 2, 10);
 
@@ -103,7 +94,6 @@ public class RegisterFrame extends JDialog {
         gbc.gridx = 1; gbc.gridy = 1;
         formPanel.add(lblEmail, gbc);
 
-        // --- Row 2: Full Name & Email Fields ---
         gbc.insets = new Insets(2, 10, 12, 10);
 
         txtFullName = new JTextField();
@@ -118,7 +108,6 @@ public class RegisterFrame extends JDialog {
         gbc.gridx = 1; gbc.gridy = 2;
         formPanel.add(txtEmail, gbc);
 
-        // --- Row 3: Mobile Number (col 0) & Desired Username (col 1) Labels ---
         gbc.insets = new Insets(4, 10, 2, 10);
 
         JLabel lblPhone = new JLabel("10-Digit Mobile Number");
@@ -131,7 +120,6 @@ public class RegisterFrame extends JDialog {
         gbc.gridx = 1; gbc.gridy = 3;
         formPanel.add(lblUser, gbc);
 
-        // --- Row 4: Mobile & Username Fields ---
         gbc.insets = new Insets(2, 10, 16, 10);
 
         txtPhone = new JTextField();
@@ -146,7 +134,6 @@ public class RegisterFrame extends JDialog {
         gbc.gridx = 1; gbc.gridy = 4;
         formPanel.add(txtUsername, gbc);
 
-        // --- Row 5: Section Header: Security & Password ---
         JLabel lblSec2 = new JLabel("Account Credentials");
         lblSec2.setFont(UITheme.FONT_HEADER);
         lblSec2.setForeground(UITheme.PRIMARY_NAVY);
@@ -154,7 +141,6 @@ public class RegisterFrame extends JDialog {
         gbc.insets = new Insets(4, 10, 8, 10);
         formPanel.add(lblSec2, gbc);
 
-        // --- Row 6: Password (col 0) & Confirm Password (col 1) Labels ---
         gbc.gridwidth = 1;
         gbc.insets = new Insets(4, 10, 2, 10);
 
@@ -168,7 +154,6 @@ public class RegisterFrame extends JDialog {
         gbc.gridx = 1; gbc.gridy = 6;
         formPanel.add(lblConfirm, gbc);
 
-        // --- Row 7: Password & Confirm Password Fields ---
         gbc.insets = new Insets(2, 10, 14, 10);
 
         txtPassword = new JPasswordField();
@@ -183,13 +168,11 @@ public class RegisterFrame extends JDialog {
         gbc.gridx = 1; gbc.gridy = 7;
         formPanel.add(txtConfirmPassword, gbc);
 
-        // Wrap formPanel in a JScrollPane so it never clips regardless of screen DPI
         JScrollPane scrollPane = new JScrollPane(formPanel);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
-        // 3. Bottom Action Bar
         JPanel actionPanel = new JPanel(new BorderLayout());
         actionPanel.setBackground(new Color(248, 250, 252));
         actionPanel.setBorder(BorderFactory.createCompoundBorder(

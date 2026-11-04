@@ -1,8 +1,5 @@
 package com.railway.model.enums;
 
-/**
- * Lifecycle status of a railway journey reservation.
- */
 public enum BookingStatus {
     CONFIRMED("Confirmed"),
     CANCELLED("Cancelled");

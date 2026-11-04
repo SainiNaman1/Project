@@ -6,9 +6,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Data Access Object (DAO) interface for Train fleet entities.
- */
 public interface TrainDAO {
     List<Train> findAllActive() throws SQLException;
     Optional<Train> findById(long id) throws SQLException;

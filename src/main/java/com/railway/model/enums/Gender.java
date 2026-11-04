@@ -1,8 +1,5 @@
 package com.railway.model.enums;
 
-/**
- * Passenger gender specification for identity verification and berth allocation.
- */
 public enum Gender {
     MALE("Male"),
     FEMALE("Female"),

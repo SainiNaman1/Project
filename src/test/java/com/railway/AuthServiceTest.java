@@ -31,7 +31,6 @@ class AuthServiceTest {
     private AuthService authService;
     private MockUserDAO mockUserDAO;
 
-    // In-memory fake DAO for isolated testing without live database
     static class MockUserDAO implements UserDAO {
         private final Map<String, User> usersByUsername = new HashMap<>();
         private final Map<String, User> usersByEmail = new HashMap<>();

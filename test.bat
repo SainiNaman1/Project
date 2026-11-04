@@ -6,6 +6,8 @@ echo =====================================================================
 
 if exist "C:\Program Files\Java\jdk-26.0.2\bin\java.exe" (
     set "JAVA_CMD=C:\Program Files\Java\jdk-26.0.2\bin\java.exe"
+) else if exist "C:\Program Files\Java\latest\bin\java.exe" (
+    set "JAVA_CMD=C:\Program Files\Java\latest\bin\java.exe"
 ) else (
     set "JAVA_CMD=java"
 )

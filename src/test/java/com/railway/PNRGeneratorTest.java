@@ -31,11 +31,11 @@ class PNRGeneratorTest {
     void testInvalidPNRs() {
         assertFalse(PNRGenerator.isValidPNR(null));
         assertFalse(PNRGenerator.isValidPNR(""));
-        assertFalse(PNRGenerator.isValidPNR("123456789")); // 9 digits
-        assertFalse(PNRGenerator.isValidPNR("12345678901")); // 11 digits
-        assertFalse(PNRGenerator.isValidPNR("0123456789")); // starts with 0
-        assertFalse(PNRGenerator.isValidPNR("1123456789")); // starts with 1
-        assertFalse(PNRGenerator.isValidPNR("ABCDEFGHIJ")); // letters
+        assertFalse(PNRGenerator.isValidPNR("123456789"));
+        assertFalse(PNRGenerator.isValidPNR("12345678901"));
+        assertFalse(PNRGenerator.isValidPNR("0123456789"));
+        assertFalse(PNRGenerator.isValidPNR("1123456789"));
+        assertFalse(PNRGenerator.isValidPNR("ABCDEFGHIJ"));
     }
 
     @Test

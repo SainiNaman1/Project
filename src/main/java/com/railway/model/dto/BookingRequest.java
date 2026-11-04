@@ -5,10 +5,6 @@ import com.railway.model.enums.TravelClass;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Data Transfer Object (DTO) capturing all user inputs required to initiate
- * a transactional ticket booking.
- */
 public class BookingRequest {
     private long userId;
     private long trainId;

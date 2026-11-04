@@ -4,10 +4,6 @@ import com.railway.exception.RailwayException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * Standardizes transaction boundaries across multi-table operations.
- * Handles auto-commit management, commit, rollback on failure, and clean closure.
- */
 public final class TransactionManager {
 
     @FunctionalInterface
@@ -25,14 +21,6 @@ public final class TransactionManager {
     private TransactionManager() {
     }
 
-    /**
-     * Executes the given action within an atomic database transaction.
-     *
-     * @param action Functional block receiving the transactional Connection
-     * @param <T> Return type
-     * @return Result of the transaction action
-     * @throws RailwayException if the transaction fails and rolls back
-     */
     public static <T> T execute(TransactionAction<T> action) throws RailwayException {
         Connection conn = null;
         try {
@@ -54,9 +42,6 @@ public final class TransactionManager {
         }
     }
 
-    /**
-     * Executes a void action within an atomic database transaction.
-     */
     public static void executeVoid(TransactionActionVoid action) throws RailwayException {
         execute(conn -> {
             action.execute(conn);

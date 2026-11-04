@@ -4,10 +4,6 @@ import com.railway.model.enums.Role;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Abstract base class for all authenticated identities in the system.
- * Demonstrates ABSTRACTION and ENCAPSULATION.
- */
 public abstract class User {
     protected long id;
     protected String username;
@@ -30,10 +26,6 @@ public abstract class User {
         this.createdAt = createdAt;
     }
 
-    /**
-     * Polymorphic authorization method.
-     * Subclasses define whether this user holds administrative rights.
-     */
     public abstract boolean hasAdminPrivileges();
 
     public long getId() {

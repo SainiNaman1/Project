@@ -1,17 +1,14 @@
 package com.railway.model;
 
-import com.railway.model.enums.BookingStatus;
-import com.railway.model.enums.TravelClass;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a confirmed or cancelled railway reservation ticket.
- * Demonstrates COMPOSITION (contains a collection of ReservationPassenger instances).
- */
+import com.railway.model.enums.BookingStatus;
+import com.railway.model.enums.TravelClass;
+
 public class Reservation {
     private long id;
     private String pnrNumber;
@@ -27,7 +24,6 @@ public class Reservation {
     private LocalDateTime bookingTimestamp;
     private List<ReservationPassenger> passengers = new ArrayList<>();
 
-    // Optional navigation reference for joined queries
     private Train train;
 
     public Reservation() {

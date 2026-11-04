@@ -7,9 +7,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Data Access Object (DAO) interface for physical seat layouts and date-specific availability.
- */
 public interface SeatDAO {
     List<Seat> findSeatsByTrainAndClass(long trainId, TravelClass travelClass) throws SQLException;
     int getAvailableSeatCount(long trainId, LocalDate journeyDate, TravelClass travelClass) throws SQLException;

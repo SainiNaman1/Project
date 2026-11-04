@@ -42,11 +42,6 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Guided multi-step passenger ticket booking interface.
- * Connects directly to authoritative FareCalculationService (eliminating hardcoded distance fallbacks)
- * and executes booking transactions asynchronously with responsive UI feedback.
- */
 public class BookingPanel extends JPanel {
 
     private final ReservationService reservationService;
@@ -60,7 +55,6 @@ public class BookingPanel extends JPanel {
     private LocalDate journeyDate;
     private int distanceKm = 0;
 
-    // UI Components
     private JLabel lblStep1Train;
     private JLabel lblStep1Route;
     private JLabel lblStep1Date;
@@ -70,7 +64,6 @@ public class BookingPanel extends JPanel {
     private JTable tblPassengers;
     private DefaultTableModel passengerTableModel;
 
-    // Itemized Fare Labels
     private JLabel lblFareDistance;
     private JLabel lblFareBaseAmount;
     private JLabel lblFareFee;
@@ -118,19 +111,17 @@ public class BookingPanel extends JPanel {
                 cmbClass.setSelectedItem(travelClass);
             }
 
-            // Resolve authoritative distance if not already passed
             if (this.distanceKm <= 0) {
                 try {
                     this.distanceKm = trainService.getRouteDistanceKm(selectedTrain.getId(), fromStation.getId(), toStation.getId());
                 } catch (Exception e) {
-                    this.distanceKm = 500; // safe fallback for display only
+                    this.distanceKm = 500;
                 }
             }
 
             refreshAvailabilityAndFare();
         }
 
-        // Initialize passenger list with 1 default passenger if empty
         if (passengerTableModel.getRowCount() == 0) {
             passengerTableModel.addRow(new Object[]{"Passenger 1", 28, Gender.MALE, BerthType.NO_PREFERENCE});
         }
@@ -142,7 +133,6 @@ public class BookingPanel extends JPanel {
         setBackground(new Color(248, 250, 252));
         setBorder(BorderFactory.createEmptyBorder(16, 20, 16, 20));
 
-        // 1. Top Section: Guided Step 1 - Journey & Class Context Card
         JPanel topCard = UITheme.createCardPanel();
         topCard.setLayout(new BorderLayout(12, 12));
         topCard.setBorder(BorderFactory.createCompoundBorder(
@@ -169,7 +159,6 @@ public class BookingPanel extends JPanel {
         step1Header.add(lblStep1Date);
         topCard.add(step1Header, BorderLayout.CENTER);
 
-        // Class and Availability Controls
         JPanel classPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 8));
         classPanel.setOpaque(false);
 
@@ -191,7 +180,6 @@ public class BookingPanel extends JPanel {
 
         add(topCard, BorderLayout.NORTH);
 
-        // 2. Center Section: Step 2 - Dynamic Passenger Details Table
         JPanel centerPanel = UITheme.createCardPanel();
         centerPanel.setLayout(new BorderLayout(8, 8));
         centerPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -255,14 +243,12 @@ public class BookingPanel extends JPanel {
 
         add(centerPanel, BorderLayout.CENTER);
 
-        // 3. Bottom Section: Step 3 & 4 - Authoritative Fare Breakdown & Confirmation Bar
         JPanel bottomBar = UITheme.createCardPanel();
         bottomBar.setLayout(new BorderLayout(14, 12));
         bottomBar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(226, 232, 240)),
                 BorderFactory.createEmptyBorder(12, 16, 12, 16)));
 
-        // Itemized Breakdown Grid
         JPanel breakdownGrid = new JPanel(new GridLayout(2, 3, 16, 4));
         breakdownGrid.setOpaque(false);
 
@@ -293,7 +279,6 @@ public class BookingPanel extends JPanel {
         leftBreakdown.add(lblTotalFare, BorderLayout.SOUTH);
         bottomBar.add(leftBreakdown, BorderLayout.CENTER);
 
-        // Confirmation & Status Action Area
         JPanel actionArea = new JPanel(new BorderLayout(4, 4));
         actionArea.setOpaque(false);
 
@@ -379,7 +364,6 @@ public class BookingPanel extends JPanel {
             return;
         }
 
-        // Commit table edits if user is currently editing a cell
         if (tblPassengers.isEditing()) {
             tblPassengers.getCellEditor().stopCellEditing();
         }
@@ -427,7 +411,6 @@ public class BookingPanel extends JPanel {
                 passengers
         );
 
-        // Execute atomically in background via SwingWorker to avoid freezing EDT
         btnConfirmBooking.setEnabled(false);
         lblStatusMessage.setForeground(new Color(15, 23, 42));
         lblStatusMessage.setText("Allocating seats & reserving tickets...");

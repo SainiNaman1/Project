@@ -3,10 +3,6 @@ package com.railway.model.dto;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Data transfer object providing an authoritative, itemized financial breakdown
- * of passenger ticket fare calculation.
- */
 public class FareBreakdownDTO {
 
     private final int distanceKm;

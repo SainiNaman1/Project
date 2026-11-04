@@ -132,12 +132,11 @@ public class TrainServiceImpl implements TrainService {
                     if (srcStop.getStopSequence() < dstStop.getStopSequence()) {
                         int distanceKm = dstStop.getDistanceFromOriginKm() - srcStop.getDistanceFromOriginKm();
                         if (distanceKm <= 0) {
-                            continue; // Skip invalid sequences
+                            continue;
                         }
 
                         TrainSearchResult result = new TrainSearchResult(train, srcStop, dstStop, distanceKm);
 
-                        // Populate seat availability and authoritative fares across travel classes
                         for (TravelClass tc : TravelClass.values()) {
                             int available = seatDAO.getAvailableSeatCount(train.getId(), journeyDate, tc);
                             result.getAvailableSeats().put(tc, available);

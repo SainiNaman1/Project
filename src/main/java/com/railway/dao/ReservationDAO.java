@@ -8,10 +8,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Data Access Object (DAO) interface for Reservations and Ticket Records.
- * Designed to participate in external JDBC transactions.
- */
 public interface ReservationDAO {
     Reservation save(Connection conn, Reservation reservation) throws SQLException;
     void savePassengers(Connection conn, long reservationId, List<ReservationPassenger> passengers) throws SQLException;

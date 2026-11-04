@@ -10,6 +10,8 @@ set CP=lib\mysql-connector-j-8.3.0.jar;lib\jbcrypt-0.4.jar;lib\flatlaf-3.4.jar;l
 
 if exist "C:\Program Files\Java\jdk-26.0.2\bin\javac.exe" (
     set "JAVAC_CMD=C:\Program Files\Java\jdk-26.0.2\bin\javac.exe"
+) else if exist "C:\Program Files\Java\latest\bin\javac.exe" (
+    set "JAVAC_CMD=C:\Program Files\Java\latest\bin\javac.exe"
 ) else (
     set "JAVAC_CMD=javac"
 )

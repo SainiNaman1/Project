@@ -6,9 +6,6 @@ import com.railway.model.RouteStop;
 import com.railway.model.Train;
 import java.util.List;
 
-/**
- * Service interface governing high-privilege administrative operations.
- */
 public interface AdminService {
     Train addTrain(Train train, List<RouteStop> stops) throws RailwayException;
     void updatePlatform(long trainId, long stationId, int platformNumber) throws RailwayException;

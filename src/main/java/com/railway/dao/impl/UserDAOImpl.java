@@ -15,10 +15,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-/**
- * PostgreSQL JDBC implementation of the UserDAO interface.
- * Strictly uses PreparedStatement for SQL injection defense.
- */
 public class UserDAOImpl implements UserDAO {
 
     private final DatabaseConnection database = DatabaseConnection.getInstance();
@@ -92,7 +88,7 @@ public class UserDAOImpl implements UserDAO {
             stmt.setString(2, user.getPasswordHash());
             stmt.setString(3, user.getFullName().trim());
             stmt.setString(4, user.getEmail().trim().toLowerCase());
-            
+
             String phone = (user instanceof PassengerUser p) ? p.getPhoneNumber() : null;
             stmt.setString(5, phone);
             stmt.setString(6, user.getRole().name());

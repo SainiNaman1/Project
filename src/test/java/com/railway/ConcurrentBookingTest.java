@@ -59,7 +59,7 @@ class ConcurrentBookingTest {
     @Test
     @DisplayName("Two concurrent requests for last available seat: exactly 1 succeeds and 1 fails")
     void testConcurrentBookingForSingleSeat() throws Exception {
-        // Shared mutable inventory representing DB table state
+
         AtomicBoolean seatAllocated = new AtomicBoolean(false);
         AtomicInteger successfulBookings = new AtomicInteger(0);
         AtomicInteger failedBookings = new AtomicInteger(0);
@@ -89,7 +89,6 @@ class ConcurrentBookingTest {
             public void saveStops(long trainId, List<RouteStop> stops) {}
         };
 
-        // Thread-safe SeatDAO enforcing atomic row-locking
         SeatDAO seatDAO = new SeatDAO() {
             public List<Seat> findSeatsByTrainAndClass(long t, TravelClass c) { return Collections.emptyList(); }
             public int getAvailableSeatCount(long t, LocalDate d, TravelClass c) {
@@ -97,12 +96,12 @@ class ConcurrentBookingTest {
             }
 
             public synchronized List<Seat> lockAvailableSeatsForUpdate(Connection conn, long t, LocalDate d, TravelClass c, int count) {
-                // Simulates InnoDB SELECT ... FOR UPDATE pessimistic row-lock
+
                 if (!seatAllocated.get()) {
-                    seatAllocated.set(true); // Atomically acquire candidate seat
+                    seatAllocated.set(true);
                     return List.of(new Seat(101L, t, c, "B1", 12, BerthType.LOWER));
                 }
-                return Collections.emptyList(); // Already locked / allocated
+                return Collections.emptyList();
             }
 
             public void insertSeatAssignment(Connection conn, long t, LocalDate d, long s, long r, String st) {}
@@ -139,7 +138,6 @@ class ConcurrentBookingTest {
                 () -> mockConn
         );
 
-        // Run 2 simultaneous threads competing for the 1 remaining seat
         int threads = 2;
         ExecutorService executor = Executors.newFixedThreadPool(threads);
         CountDownLatch readyLatch = new CountDownLatch(threads);
@@ -150,7 +148,7 @@ class ConcurrentBookingTest {
             final long userId = 100L + i;
             futures.add(executor.submit(() -> {
                 readyLatch.countDown();
-                startLatch.await(); // Simultaneous release
+                startLatch.await();
 
                 List<ReservationPassenger> pax = List.of(
                         new ReservationPassenger(0L, 0L, "Passenger " + userId, 30, Gender.FEMALE, BerthType.LOWER, "", 0, BerthType.LOWER)
@@ -178,14 +176,13 @@ class ConcurrentBookingTest {
         }
 
         readyLatch.await();
-        startLatch.countDown(); // Fire both threads at the exact same instant
+        startLatch.countDown();
 
         for (Future<Void> f : futures) {
             f.get();
         }
         executor.shutdown();
 
-        // Exactly 1 must have succeeded, and exactly 1 must have failed with BookingException
         assertEquals(1, successfulBookings.get(), "Exactly 1 booking must succeed for the last seat");
         assertEquals(1, failedBookings.get(), "Exactly 1 booking must fail due to seat exhaustion");
         assertEquals(1, savedReservations.size(), "Only 1 reservation record must be persisted");

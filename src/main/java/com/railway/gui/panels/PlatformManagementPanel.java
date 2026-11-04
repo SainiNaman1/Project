@@ -24,9 +24,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Administrative panel for managing live platform assignments for train station stops.
- */
 public class PlatformManagementPanel extends JPanel {
 
     private final AdminService adminService;
@@ -51,7 +48,6 @@ public class PlatformManagementPanel extends JPanel {
         setLayout(new BorderLayout(12, 12));
         setBackground(new Color(248, 250, 252));
 
-        // Top Control Card
         JPanel controlCard = UITheme.createCardPanel();
         controlCard.setLayout(new GridBagLayout());
 
@@ -65,7 +61,6 @@ public class PlatformManagementPanel extends JPanel {
 
         gbc.gridwidth = 1;
 
-        // Train Selector
         JLabel lblTrain = new JLabel("Select Train:");
         lblTrain.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridx = 0; gbc.gridy = 1;
@@ -76,7 +71,6 @@ public class PlatformManagementPanel extends JPanel {
         gbc.gridx = 0; gbc.gridy = 2;
         controlCard.add(cmbTrains, gbc);
 
-        // Station Stop Selector
         JLabel lblStop = new JLabel("Select Station Stop:");
         lblStop.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridx = 1; gbc.gridy = 1;
@@ -87,7 +81,6 @@ public class PlatformManagementPanel extends JPanel {
         gbc.gridx = 1; gbc.gridy = 2;
         controlCard.add(cmbStops, gbc);
 
-        // Platform Number Spinner
         JLabel lblPlat = new JLabel("Platform Number (1-24):");
         lblPlat.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridx = 2; gbc.gridy = 1;
@@ -98,14 +91,12 @@ public class PlatformManagementPanel extends JPanel {
         gbc.gridx = 2; gbc.gridy = 2;
         controlCard.add(spinPlatform, gbc);
 
-        // Update Button
         btnUpdatePlatform = UITheme.createPrimaryButton("Update Platform");
         gbc.gridx = 3; gbc.gridy = 2;
         controlCard.add(btnUpdatePlatform, gbc);
 
         add(controlCard, BorderLayout.NORTH);
 
-        // Center Table showing current itinerary and platforms
         String[] columns = {"Stop #", "Station Code", "Station Name", "Arrival", "Departure", "Assigned Platform"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
@@ -116,7 +107,6 @@ public class PlatformManagementPanel extends JPanel {
         tblPlatforms.setFont(UITheme.FONT_BODY);
         add(new JScrollPane(tblPlatforms), BorderLayout.CENTER);
 
-        // Status Bar
         JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         statusBar.setBackground(Color.WHITE);
         lblStatus = new JLabel(" Ready.");
@@ -124,7 +114,6 @@ public class PlatformManagementPanel extends JPanel {
         statusBar.add(lblStatus);
         add(statusBar, BorderLayout.SOUTH);
 
-        // Event Listeners
         cmbTrains.addActionListener(e -> {
             Train t = (Train) cmbTrains.getSelectedItem();
             if (t != null) {

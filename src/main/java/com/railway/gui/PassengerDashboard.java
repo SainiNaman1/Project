@@ -38,10 +38,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-/**
- * Modern Passenger Portal featuring a Persistent Navigation Sidebar
- * and smooth CardLayout context panel transitions inside a single JFrame.
- */
 public class PassengerDashboard extends JFrame {
 
     public static final String CARD_HOME = "HOME";
@@ -89,11 +85,9 @@ public class PassengerDashboard extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
-        // 1. Persistent Left Navigation Sidebar (Navy & Slate identity)
         JPanel sidebar = createSidebar();
         add(sidebar, BorderLayout.WEST);
 
-        // 2. Central Content Area (CardLayout)
         cardLayout = new CardLayout();
         cardContainer = new JPanel(cardLayout);
 
@@ -124,19 +118,16 @@ public class PassengerDashboard extends JFrame {
         cardContainer.add(rulesPanel, CARD_RULES);
         cardContainer.add(ticketPanel, CARD_TICKET);
 
-        // Top Header above main content
         JPanel mainWrapper = new JPanel(new BorderLayout());
         JPanel topHeader = createTopHeader();
         mainWrapper.add(topHeader, BorderLayout.NORTH);
         mainWrapper.add(cardContainer, BorderLayout.CENTER);
 
-        // Bottom Status Bar
         JPanel statusBar = createStatusBar();
         mainWrapper.add(statusBar, BorderLayout.SOUTH);
 
         add(mainWrapper, BorderLayout.CENTER);
 
-        // Initial view
         navigateToCard(CARD_HOME);
     }
 
@@ -147,7 +138,6 @@ public class PassengerDashboard extends JFrame {
         sidebar.setPreferredSize(new Dimension(240, 0));
         sidebar.setBorder(BorderFactory.createEmptyBorder(20, 12, 20, 12));
 
-        // Brand Banner
         JLabel lblLogo = new JLabel("INDIAN RAILWAYS");
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 17));
         lblLogo.setForeground(Color.WHITE);
@@ -162,7 +152,6 @@ public class PassengerDashboard extends JFrame {
         sidebar.add(lblTag);
         sidebar.add(Box.createRigidArea(new Dimension(0, 24)));
 
-        // Navigation Items
         addSidebarButton(sidebar, "Dashboard", CARD_HOME);
         addSidebarButton(sidebar, "Search Trains", CARD_SEARCH);
         addSidebarButton(sidebar, "Book Ticket", CARD_BOOKING);
@@ -172,12 +161,10 @@ public class PassengerDashboard extends JFrame {
 
         sidebar.add(Box.createVerticalGlue());
 
-        // My Profile button
         JButton btnProfile = createSidebarActionButton("My Profile", e -> showProfileDialog());
         sidebar.add(btnProfile);
         sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        // Logout Button
         JButton btnLogout = createSidebarActionButton("Logout", e -> performLogout());
         btnLogout.setForeground(new Color(254, 202, 202));
         sidebar.add(btnLogout);
@@ -263,7 +250,6 @@ public class PassengerDashboard extends JFrame {
     public void navigateToCard(String cardName) {
         this.currentCard = cardName;
 
-        // Update button visual selection
         sidebarButtons.forEach((name, btn) -> {
             if (name.equals(cardName)) {
                 btn.setBackground(UITheme.SECONDARY_SLATE);
@@ -274,7 +260,6 @@ public class PassengerDashboard extends JFrame {
             }
         });
 
-        // Trigger refreshes on navigation
         if (CARD_HOME.equals(cardName)) {
             homePanel.refreshDashboard();
         } else if (CARD_MY_BOOKINGS.equals(cardName)) {

@@ -3,10 +3,6 @@ package com.railway.model;
 import com.railway.model.enums.BerthType;
 import com.railway.model.enums.Gender;
 
-/**
- * Details of an individual passenger traveling under a master Reservation.
- * Demonstrates ENCAPSULATION.
- */
 public class ReservationPassenger {
     private long id;
     private long reservationId;

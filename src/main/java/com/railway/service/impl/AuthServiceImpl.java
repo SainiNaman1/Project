@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public PassengerUser register(String fullName, String email, String phone, String username, String password, String confirmPassword) throws ValidationException {
-        // Validate presence
+
         if (fullName == null || fullName.trim().length() < 2) {
             throw new ValidationException("Full name must contain at least 2 characters.");
         }
@@ -95,7 +95,6 @@ public class AuthServiceImpl implements AuthService {
                     LocalDateTime.now()
             );
 
-            // Crucial security requirement: Role is hardcoded to PASSENGER
             newUser.setRole(Role.PASSENGER);
 
             return (PassengerUser) userDAO.save(newUser);

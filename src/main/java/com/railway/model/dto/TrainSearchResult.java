@@ -7,10 +7,6 @@ import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * Data Transfer Object (DTO) aggregating train details, route stops,
- * dynamic distance, fare estimation, and seat availability for search results.
- */
 public class TrainSearchResult {
     private Train train;
     private RouteStop sourceStop;

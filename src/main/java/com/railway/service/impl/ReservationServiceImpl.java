@@ -75,7 +75,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Reservation bookTicket(BookingRequest request) throws BookingException {
-        // 1. Syntactic Validations
+
         if (request == null) {
             throw new BookingException("Booking request cannot be null.");
         }
@@ -98,9 +98,8 @@ public class ReservationServiceImpl implements ReservationService {
         Connection conn = null;
         try {
             conn = connectionProvider.getConnection();
-            conn.setAutoCommit(false); // START TRANSACTION
+            conn.setAutoCommit(false);
 
-            // 2. Fetch train and stations using active transaction connection
             Optional<Train> trainOpt = trainDAO.findById(conn, request.getTrainId());
             if (trainOpt.isEmpty()) {
                 throw new BookingException("Train with ID " + request.getTrainId() + " not found.");
@@ -115,7 +114,6 @@ public class ReservationServiceImpl implements ReservationService {
             Station fromStation = fromOpt.get();
             Station toStation = toOpt.get();
 
-            // 3. Validate route sequence and calculate authoritative distance (NO silent fallback!)
             int distanceKm = routeDAO.calculateDistanceKm(conn, train.getId(), fromStation.getId(), toStation.getId());
             if (distanceKm <= 0) {
                 conn.rollback();
@@ -126,7 +124,6 @@ public class ReservationServiceImpl implements ReservationService {
                         train.getTrainNumber(), train.getTrainName()));
             }
 
-            // 4. Atomically lock candidate available seats using SELECT ... FOR UPDATE
             int requestedCount = passengers.size();
             List<Seat> lockedSeats = seatDAO.lockAvailableSeatsForUpdate(
                     conn,
@@ -142,18 +139,15 @@ public class ReservationServiceImpl implements ReservationService {
                         request.getTravelClass().getDisplayName() + ". Requested: " + requestedCount);
             }
 
-            // 5. Generate collision-resistant unique 10-digit PNR
             String pnr = PNRGenerator.generatePNR();
             while (reservationDAO.existsByPnr(conn, pnr)) {
                 pnr = PNRGenerator.generatePNR();
             }
 
-            // 6. Compute Authoritative Total Fare via FareCalculationService
             FareBreakdownDTO fareBreakdown = fareCalculationService.calculateFareBreakdown(
                     train, request.getTravelClass(), distanceKm, requestedCount);
             BigDecimal totalFare = fareBreakdown.getTotalFare();
 
-            // 7. Save Master Reservation
             Reservation reservation = new Reservation(
                     0L,
                     pnr,
@@ -172,7 +166,6 @@ public class ReservationServiceImpl implements ReservationService {
 
             reservationDAO.save(conn, reservation);
 
-            // 8. Assign locked seats to passengers and save
             for (int i = 0; i < requestedCount; i++) {
                 ReservationPassenger passenger = passengers.get(i);
                 Seat allocatedSeat = lockedSeats.get(i);
@@ -182,7 +175,6 @@ public class ReservationServiceImpl implements ReservationService {
                 passenger.setAssignedSeatNumber(allocatedSeat.getSeatNumber());
                 passenger.setAssignedBerth(allocatedSeat.getBerthType());
 
-                // Persist date-specific occupancy in seat_assignments
                 seatDAO.insertSeatAssignment(
                         conn,
                         train.getId(),
@@ -196,7 +188,6 @@ public class ReservationServiceImpl implements ReservationService {
             reservationDAO.savePassengers(conn, reservation.getId(), passengers);
             reservation.setPassengers(passengers);
 
-            // 9. Commit Transaction
             conn.commit();
             return reservation;
 
@@ -221,7 +212,7 @@ public class ReservationServiceImpl implements ReservationService {
         Connection conn = null;
         try {
             conn = connectionProvider.getConnection();
-            conn.setAutoCommit(false); // START TRANSACTION
+            conn.setAutoCommit(false);
 
             Optional<Reservation> resOpt = reservationDAO.findByPnrForUpdate(conn, pnr.trim());
             if (resOpt.isEmpty()) {
@@ -230,7 +221,6 @@ public class ReservationServiceImpl implements ReservationService {
 
             Reservation res = resOpt.get();
 
-            // Authorization: User must own the booking OR be an Administrator
             boolean isAdmin = SessionContext.isAdmin();
             if (!isAdmin && res.getUserId() != requestingUserId) {
                 conn.rollback();
@@ -247,10 +237,8 @@ public class ReservationServiceImpl implements ReservationService {
                 throw new CancellationException("Cannot cancel a past journey ticket.");
             }
 
-            // 1. Update reservation status
             reservationDAO.updateStatus(conn, res.getId(), BookingStatus.CANCELLED);
 
-            // 2. Atomically release assigned seats back to inventory
             seatDAO.deleteAssignmentsByReservationId(conn, res.getId());
 
             conn.commit();
@@ -273,10 +261,8 @@ public class ReservationServiceImpl implements ReservationService {
             }
             Reservation res = resOpt.get();
 
-            // Security check: only owner or admin can view ticket details
             AuthorizationService.requireReservationAccess(res.getUserId());
 
-            // Attach train details if missing
             if (res.getTrain() == null) {
                 trainDAO.findById(res.getTrainId()).ifPresent(res::setTrain);
             }

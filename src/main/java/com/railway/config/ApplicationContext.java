@@ -29,15 +29,10 @@ import com.railway.service.impl.FareCalculationServiceImpl;
 import com.railway.service.impl.ReservationServiceImpl;
 import com.railway.service.impl.TrainServiceImpl;
 
-/**
- * Central dependency injection registry and lifecycle container.
- * Creates DAOs and injects them into business services in topological order.
- */
 public final class ApplicationContext {
 
     private static volatile ApplicationContext instance;
 
-    // DAOs
     private final UserDAO userDAO;
     private final StationDAO stationDAO;
     private final TrainDAO trainDAO;
@@ -47,7 +42,6 @@ public final class ApplicationContext {
     private final RailwayRuleDAO ruleDAO;
     private final AuditLogDAO auditLogDAO;
 
-    // Services
     private final AuthService authService;
     private final TrainService trainService;
     private final FareCalculationService fareCalculationService;
@@ -56,7 +50,7 @@ public final class ApplicationContext {
     private final AdminService adminService;
 
     private ApplicationContext() {
-        // 1. Initialize DAO Layer
+
         this.userDAO = new UserDAOImpl();
         this.stationDAO = new StationDAOImpl();
         this.trainDAO = new TrainDAOImpl();
@@ -66,7 +60,6 @@ public final class ApplicationContext {
         this.ruleDAO = new RailwayRuleDAOImpl();
         this.auditLogDAO = new AuditLogDAOImpl();
 
-        // 2. Wire and Initialize Service Layer
         this.authService = new AuthServiceImpl(this.userDAO);
         this.trainService = new TrainServiceImpl(this.trainDAO, this.routeDAO, this.seatDAO, this.stationDAO, this.ruleDAO);
         this.fareCalculationService = new FareCalculationServiceImpl();
@@ -86,7 +79,6 @@ public final class ApplicationContext {
         return instance;
     }
 
-    // DAO Accessors
     public UserDAO getUserDAO() { return userDAO; }
     public StationDAO getStationDAO() { return stationDAO; }
     public TrainDAO getTrainDAO() { return trainDAO; }
@@ -96,7 +88,6 @@ public final class ApplicationContext {
     public RailwayRuleDAO getRuleDAO() { return ruleDAO; }
     public AuditLogDAO getAuditLogDAO() { return auditLogDAO; }
 
-    // Service Accessors
     public AuthService getAuthService() { return authService; }
     public TrainService getTrainService() { return trainService; }
     public FareCalculationService getFareCalculationService() { return fareCalculationService; }

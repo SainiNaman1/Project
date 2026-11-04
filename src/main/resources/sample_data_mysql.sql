@@ -1,17 +1,11 @@
--- ============================================================================
--- Railway Management System: Comprehensive Master Data (12 Trains, 22 Stations)
--- ============================================================================
-
 USE railway_db;
 
--- 1. Initial Users (admin / Admin@123, rahul / Rahul@123)
 INSERT INTO users (username, password_hash, full_name, email, phone_number, role)
-VALUES 
+VALUES
   ('admin', '$2a$12$JZMbJWlkXvMjd29jrFmOuu/w/p/1Xpsd3TK4tEZusCAz2IstyfHwO', 'System Administrator', 'admin@railway.gov.in', '9876543210', 'ADMIN'),
   ('rahul', '$2a$12$s/RbEmpMfG8MdmKOh/UQv.POLKZ96jwPkZPWPrbIPzBXAh1op5DOu', 'Rahul Sharma', 'rahul.sharma@example.com', '9123456780', 'PASSENGER')
 ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash);
 
--- 2. Master Stations (22 Key Junctions across India)
 INSERT INTO stations (id, station_code, station_name, city, state) VALUES
   (1, 'NDLS', 'New Delhi Railway Station', 'New Delhi', 'Delhi'),
   (2, 'GWL', 'Gwalior Junction', 'Gwalior', 'Madhya Pradesh'),
@@ -37,7 +31,6 @@ INSERT INTO stations (id, station_code, station_name, city, state) VALUES
   (22, 'CSMT', 'Chhatrapati Shivaji Maharaj Terminus', 'Mumbai', 'Maharashtra')
 ON DUPLICATE KEY UPDATE station_name = VALUES(station_name), city = VALUES(city), state = VALUES(state);
 
--- 3. Trains Directory (12 Premier Trains)
 INSERT INTO trains (id, train_number, train_name, train_type, source_station_id, dest_station_id, base_fare_per_km, active) VALUES
   (1, '12952', 'Mumbai Rajdhani Express', 'RAJDHANI', 1, 6, 1.80, TRUE),
   (2, '12002', 'Bhopal Shatabdi Express', 'SHATABDI', 1, 3, 1.50, TRUE),
@@ -53,7 +46,6 @@ INSERT INTO trains (id, train_number, train_name, train_type, source_station_id,
   (12, '12424', 'Dibrugarh Rajdhani Express', 'RAJDHANI', 1, 15, 1.80, TRUE)
 ON DUPLICATE KEY UPDATE train_name = VALUES(train_name), train_type = VALUES(train_type), source_station_id = VALUES(source_station_id), dest_station_id = VALUES(dest_station_id), base_fare_per_km = VALUES(base_fare_per_km), active = VALUES(active);
 
--- 4. Route Stops with Accurate Sequences, Timings, Distances, and Platforms
 DELETE FROM route_stops;
 INSERT INTO route_stops (train_id, station_id, stop_sequence, arrival_time, departure_time, halt_minutes, distance_from_origin_km, scheduled_platform) VALUES
   (1, 1, 1, '16:55:00', '16:55:00', 0, 0, 1),
@@ -111,7 +103,6 @@ INSERT INTO route_stops (train_id, station_id, stop_sequence, arrival_time, depa
   (12, 14, 4, '01:23:00', '01:33:00', 10, 787, 2),
   (12, 15, 5, '04:15:00', '04:25:00', 10, 1000, 1);
 
--- 5. Physical Coach and Seat Inventory (~900 Bookable Berths Across 1A, 2A, 3A, SL, CC)
 DELETE FROM seats;
 INSERT INTO seats (train_id, travel_class, coach_number, seat_number, berth_type) VALUES
   (1, '1A', 'H1', 1, 'LOWER'),
@@ -1081,9 +1072,8 @@ INSERT INTO seats (train_id, travel_class, coach_number, seat_number, berth_type
   (12, '3A', 'B2', 23, 'MIDDLE'),
   (12, '3A', 'B2', 24, 'UPPER');
 
--- 6. Informational Railway Rules
 INSERT IGNORE INTO railway_rules (category, title, content)
-VALUES 
+VALUES
   ('Baggage', 'Free Luggage Allowance', 'AC First Class: 70kg, AC 2-Tier: 50kg, AC 3-Tier/Chair Car: 40kg, Sleeper: 40kg. Maximum permissible luggage dimensions are 100cm x 60cm x 25cm.'),
   ('Cancellation', 'Ticket Cancellation & Refund Slabs', 'Cancellations 48+ hours before scheduled departure incur a flat deduction per passenger (1A: Rs.240, 2A: Rs.200, 3A/CC: Rs.180, SL: Rs.120). Cancellations between 12-48 hours incur 25% deduction. Between 4-12 hours incur 50% deduction. Zero refund within 4 hours of departure.'),
   ('General', 'Identification & Journey Guidelines', 'Passengers must carry a valid original Government photo ID (Aadhaar, PAN, Voter ID, Driving License, or Passport) during the journey. Platform tickets are valid for 2 hours from time of issuance.');

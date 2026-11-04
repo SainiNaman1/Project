@@ -1,8 +1,5 @@
 package com.railway.model.enums;
 
-/**
- * Physical berth and seat position layout classifications.
- */
 public enum BerthType {
     LOWER("Lower Berth"),
     MIDDLE("Middle Berth"),

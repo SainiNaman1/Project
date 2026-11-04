@@ -28,11 +28,6 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Modern Dashboard Home panel for authenticated passengers.
- * Displays executive summary cards (Total Bookings, Confirmed Bookings, Upcoming Journey),
- * quick action shortcuts, and recent booking activity.
- */
 public class PassengerHomePanel extends JPanel {
 
     private final ReservationService reservationService;
@@ -67,7 +62,6 @@ public class PassengerHomePanel extends JPanel {
         setBackground(new Color(248, 250, 252));
         setBorder(BorderFactory.createEmptyBorder(20, 24, 20, 24));
 
-        // 1. Welcome Card Banner
         JPanel welcomeCard = UITheme.createCardPanel();
         welcomeCard.setLayout(new BorderLayout(12, 12));
         welcomeCard.setBorder(BorderFactory.createCompoundBorder(
@@ -92,7 +86,6 @@ public class PassengerHomePanel extends JPanel {
         welcomeText.add(lblSub);
         welcomeCard.add(welcomeText, BorderLayout.WEST);
 
-        // Quick Action Shortcuts in Welcome Card
         JPanel quickActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         quickActions.setOpaque(false);
 
@@ -106,19 +99,15 @@ public class PassengerHomePanel extends JPanel {
         quickActions.add(btnQuickBook);
         welcomeCard.add(quickActions, BorderLayout.EAST);
 
-        // 2. Metrics & Upcoming Journey Row
         JPanel middleRow = new JPanel(new GridLayout(1, 3, 16, 16));
         middleRow.setOpaque(false);
 
-        // Metric Card 1: Total Bookings
         JPanel cardTotal = createStatCard("Total Reservations", "0", new Color(30, 41, 59));
         lblTotalBookings = (JLabel) cardTotal.getClientProperty("valueLabel");
 
-        // Metric Card 2: Confirmed Bookings
         JPanel cardConfirmed = createStatCard("Confirmed Bookings", "0", UITheme.ACCENT_GREEN);
         lblConfirmedBookings = (JLabel) cardConfirmed.getClientProperty("valueLabel");
 
-        // Metric Card 3: Upcoming Journey Highlight
         JPanel cardUpcoming = UITheme.createCardPanel();
         cardUpcoming.setLayout(new BorderLayout(8, 8));
         cardUpcoming.setBorder(BorderFactory.createCompoundBorder(
@@ -148,14 +137,12 @@ public class PassengerHomePanel extends JPanel {
         middleRow.add(cardConfirmed);
         middleRow.add(cardUpcoming);
 
-        // Top Wrapper combining welcome & metrics
         JPanel topContainer = new JPanel(new BorderLayout(0, 16));
         topContainer.setOpaque(false);
         topContainer.add(welcomeCard, BorderLayout.NORTH);
         topContainer.add(middleRow, BorderLayout.CENTER);
         add(topContainer, BorderLayout.NORTH);
 
-        // 3. Center Section: Recent Booking Activity Table
         JPanel activityPanel = UITheme.createCardPanel();
         activityPanel.setLayout(new BorderLayout(8, 8));
         activityPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -248,7 +235,6 @@ public class PassengerHomePanel extends JPanel {
                     lblTotalBookings.setText(String.valueOf(total));
                     lblConfirmedBookings.setText(String.valueOf(confirmed));
 
-                    // Next upcoming journey
                     LocalDate today = LocalDate.now();
                     Reservation upcoming = list.stream()
                             .filter(r -> r.getStatus() == BookingStatus.CONFIRMED && !r.getJourneyDate().isBefore(today))
@@ -270,7 +256,6 @@ public class PassengerHomePanel extends JPanel {
                         btnViewUpcoming.setVisible(false);
                     }
 
-                    // Populate recent activity table (most recent first)
                     activityTableModel.setRowCount(0);
                     list.stream().limit(10).forEach(r -> {
                         String trainStr = r.getTrain() != null ? r.getTrain().getTrainNumber() + " - " + r.getTrain().getTrainName() : "ID: " + r.getTrainId();

@@ -1,12 +1,9 @@
 package com.railway.model;
 
-import com.railway.model.enums.TrainType;
 import java.math.BigDecimal;
 
-/**
- * Represents a standard long-distance mail/express service.
- * Baseline fare multiplier is 1.00.
- */
+import com.railway.model.enums.TrainType;
+
 public class MailExpressTrain extends Train {
 
     public MailExpressTrain() {
@@ -19,7 +16,7 @@ public class MailExpressTrain extends Train {
 
     @Override
     public BigDecimal calculateBaseMultiplier() {
-        return new BigDecimal("1.00"); // Baseline standard tariff
+        return new BigDecimal("1.00");
     }
 
     @Override

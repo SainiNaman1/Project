@@ -8,10 +8,6 @@ import com.railway.service.FareCalculationService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Production implementation of FareCalculationService.
- * Enforces authoritative pricing rules across search previews and booking executions.
- */
 public class FareCalculationServiceImpl implements FareCalculationService {
 
     public static final BigDecimal FIXED_RESERVATION_FEE = new BigDecimal("40.00");
@@ -35,22 +31,18 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         BigDecimal distance = BigDecimal.valueOf(distanceKm);
         BigDecimal baseRate = train.getBaseFarePerKm();
         BigDecimal classMultiplier = travelClass.getFareMultiplier();
-        BigDecimal trainMultiplier = train.calculateBaseMultiplier(); // Polymorphic OOP call
+        BigDecimal trainMultiplier = train.calculateBaseMultiplier();
 
-        // 1. Distance fare = distance * baseRate * classMultiplier * trainMultiplier
         BigDecimal baseDistanceFare = distance
                 .multiply(baseRate)
                 .multiply(classMultiplier)
                 .multiply(trainMultiplier);
 
-        // 2. Add fixed reservation charge
         BigDecimal subtotal = baseDistanceFare.add(FIXED_RESERVATION_FEE);
 
-        // 3. GST (5%)
         BigDecimal gstAmount = subtotal.multiply(GST_RATE);
         BigDecimal singlePassengerTotal = subtotal.add(gstAmount).setScale(2, RoundingMode.HALF_UP);
 
-        // 4. Total for all passengers
         BigDecimal totalFare = singlePassengerTotal.multiply(BigDecimal.valueOf(passengerCount)).setScale(2, RoundingMode.HALF_UP);
 
         return new FareBreakdownDTO(

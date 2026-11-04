@@ -2,9 +2,6 @@ package com.railway.audit;
 
 import java.time.LocalDateTime;
 
-/**
- * Domain entity capturing an auditable system event or administrative action.
- */
 public class AuditLog {
     private long id;
     private Long userId;

@@ -5,7 +5,7 @@
 
 ## 1. Project Overview
 
-The **Railway Management System (RMS)** is an educational desktop simulation of an Indian Railways passenger portal and operational console. Built with **Java 17+**, **Java Swing**, and **JDBC**, it demonstrates:
+The **Railway Management System (RMS)** is an educational desktop simulation of an Indian Railways passenger portal and operational console. Built with **Java 25 LTS**, **Java Swing**, and **JDBC**, it demonstrates:
 
 - **Layered Architecture**: Presentation (`gui`) $\to$ Core Services (`service`) $\to$ Data Access Objects (`dao`) $\to$ Relational Database (`MySQL 8.0 InnoDB`).
 - **Standardized MySQL 8.0 Persistence**: Dedicated MySQL Connector/J driver configuration, explicit connection pooling, and configuration overrides via environment variables (`DB_URL`, `DB_USER`, `DB_PASSWORD`).

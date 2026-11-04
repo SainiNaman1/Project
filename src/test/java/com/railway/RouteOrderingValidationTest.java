@@ -50,7 +50,6 @@ class RouteOrderingValidationTest {
         bct = new Station(2L, "BCT", "Mumbai Central", "Mumbai", "Maharashtra");
         sampleTrain = new MailExpressTrain(10L, "12904", "Golden Temple Mail", ndls, bct, new BigDecimal("1.20"), true);
 
-        // Stub TrainDAO
         TrainDAO trainDAO = new TrainDAO() {
             public List<Train> findAllActive() { return List.of(sampleTrain); }
             public Optional<Train> findById(long id) { return Optional.of(sampleTrain); }
@@ -61,7 +60,6 @@ class RouteOrderingValidationTest {
             public void updateStatus(long id, boolean a) {}
         };
 
-        // Stub StationDAO
         StationDAO stationDAO = new StationDAO() {
             public List<Station> findAll() { return List.of(ndls, bct); }
             public Optional<Station> findById(long id) { return id == 1L ? Optional.of(ndls) : Optional.of(bct); }
@@ -70,9 +68,6 @@ class RouteOrderingValidationTest {
             public Station save(Station s) { return s; }
         };
 
-        // Stub RouteDAO simulating route sequence check:
-        // NDLS is stop 1 (0 km), BCT is stop 2 (1384 km)
-        // If fromStation is BCT (2) and toStation is NDLS (1), calculateDistanceKm returns -1 (reversed order)
         RouteDAO routeDAO = new RouteDAO() {
             public List<RouteStop> findStopsByTrainId(long trainId) { return Collections.emptyList(); }
             public Optional<RouteStop> findStop(long trainId, long stationId) { return Optional.empty(); }
@@ -134,13 +129,11 @@ class RouteOrderingValidationTest {
                 new ReservationPassenger(0L, 0L, "Rahul Sharma", 28, Gender.MALE, BerthType.LOWER, null, 0, null)
         );
 
-        // Attempt to book backwards: from BCT (2) to NDLS (1) on a southbound train
-        // BookingRequest: userId, trainId, fromStationId, toStationId, journeyDate, travelClass, passengers
         BookingRequest reversedRequest = new BookingRequest(
                 1L,
                 sampleTrain.getId(),
-                bct.getId(),  // from BCT (destination on route)
-                ndls.getId(), // to NDLS (origin on route)
+                bct.getId(),
+                ndls.getId(),
                 LocalDate.now().plusDays(2),
                 TravelClass.SLEEPER,
                 passengers

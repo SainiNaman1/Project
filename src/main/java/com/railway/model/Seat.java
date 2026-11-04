@@ -3,10 +3,6 @@ package com.railway.model;
 import com.railway.model.enums.BerthType;
 import com.railway.model.enums.TravelClass;
 
-/**
- * Represents a physical seat / berth inside a coach of a train.
- * Demonstrates ENCAPSULATION.
- */
 public class Seat {
     private long id;
     private long trainId;

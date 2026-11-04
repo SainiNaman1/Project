@@ -7,20 +7,14 @@ import com.railway.gui.LoginFrame;
 import com.railway.gui.UITheme;
 import javax.swing.SwingUtilities;
 
-/**
- * Entry point for the Railway Management System desktop application.
- * Configures the FlatLaf theme, bootstraps the MySQL 8 schema, and opens the LoginFrame.
- */
 public class Main {
 
     public static void main(String[] args) {
-        // 1. Initialize modern Swing Look and Feel
+
         UITheme.setupLookAndFeel();
 
-        // 2. Pre-warm dependency injection container
         ApplicationContext.getInstance();
 
-        // 3. Bootstrap MySQL database schema in background thread
         new Thread(() -> {
             boolean connected = DatabaseConnection.getInstance().testConnection();
             if (connected) {
@@ -32,7 +26,6 @@ public class Main {
             }
         }).start();
 
-        // 4. Launch UI on Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> {
             LoginFrame loginFrame = new LoginFrame();
             loginFrame.setVisible(true);

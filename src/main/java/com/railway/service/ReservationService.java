@@ -7,10 +7,6 @@ import com.railway.model.Reservation;
 import com.railway.model.dto.BookingRequest;
 import java.util.List;
 
-/**
- * Service interface governing atomic ticket reservations, seat allocation concurrency,
- * and reservation cancellations.
- */
 public interface ReservationService {
     Reservation bookTicket(BookingRequest request) throws BookingException;
     boolean cancelReservation(String pnr, long requestingUserId) throws CancellationException;

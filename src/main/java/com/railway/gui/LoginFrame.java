@@ -24,11 +24,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 
-/**
- * Modern, non-blocking authentication window.
- * Features asynchronous authentication via SwingWorker, inline validation feedback,
- * show/hide password toggle, and clean FlatLaf styling.
- */
 public class LoginFrame extends JFrame {
 
     private final AuthService authService;
@@ -57,7 +52,6 @@ public class LoginFrame extends JFrame {
         setResizable(false);
         setLayout(new BorderLayout());
 
-        // Top Header Banner
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(UITheme.PRIMARY_NAVY);
         headerPanel.setBorder(BorderFactory.createEmptyBorder(24, 20, 24, 20));
@@ -74,7 +68,6 @@ public class LoginFrame extends JFrame {
         headerPanel.add(lblSubtitle, BorderLayout.SOUTH);
         add(headerPanel, BorderLayout.NORTH);
 
-        // Center Container & Card
         JPanel centerContainer = new JPanel(new GridBagLayout());
         centerContainer.setBackground(new Color(241, 245, 249));
 
@@ -87,14 +80,12 @@ public class LoginFrame extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
 
-        // Card Heading
         JLabel lblCardTitle = new JLabel("Sign In to Your Account");
         lblCardTitle.setFont(UITheme.FONT_HEADER);
         lblCardTitle.setForeground(UITheme.TEXT_DARK);
         gbc.gridy = 0;
         card.add(lblCardTitle, gbc);
 
-        // Username
         JLabel lblUser = new JLabel("Username");
         lblUser.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridy = 1;
@@ -106,7 +97,6 @@ public class LoginFrame extends JFrame {
         gbc.gridy = 2;
         card.add(txtUsername, gbc);
 
-        // Password with Show/Hide toggle
         JLabel lblPass = new JLabel("Password");
         lblPass.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridy = 3;
@@ -131,20 +121,17 @@ public class LoginFrame extends JFrame {
         gbc.gridy = 4;
         card.add(passwordRow, gbc);
 
-        // Inline Error / Feedback Label
         lblInlineError = new JLabel(" ");
         lblInlineError.setFont(UITheme.FONT_SMALL);
         lblInlineError.setForeground(UITheme.ACCENT_RED);
         gbc.gridy = 5;
         card.add(lblInlineError, gbc);
 
-        // Sign In Button
         btnLogin = UITheme.createPrimaryButton("Sign In");
         btnLogin.setPreferredSize(new Dimension(320, 38));
         gbc.gridy = 6;
         card.add(btnLogin, gbc);
 
-        // Optional Demo Autofill (only if enabled via configuration)
         if (AppConfig.isDemoAutofillEnabled()) {
             JPanel autofillPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 2));
             autofillPanel.setOpaque(false);
@@ -173,7 +160,6 @@ public class LoginFrame extends JFrame {
             card.add(autofillPanel, gbc);
         }
 
-        // Register New Passenger Button
         btnRegister = new JButton("Create New Passenger Account");
         btnRegister.setFont(UITheme.FONT_BODY);
         btnRegister.setFocusPainted(false);
@@ -184,7 +170,6 @@ public class LoginFrame extends JFrame {
         centerContainer.add(card);
         add(centerContainer, BorderLayout.CENTER);
 
-        // Event Listeners
         btnLogin.addActionListener(e -> performAsyncLogin());
         txtPassword.addActionListener(e -> performAsyncLogin());
         txtUsername.addActionListener(e -> txtPassword.requestFocusInWindow());
@@ -221,7 +206,6 @@ public class LoginFrame extends JFrame {
             return;
         }
 
-        // Enter loading state without blocking EDT
         setLoadingState(true);
 
         SwingWorker<User, Void> worker = new SwingWorker<>() {
@@ -238,7 +222,7 @@ public class LoginFrame extends JFrame {
                     lblInlineError.setForeground(UITheme.ACCENT_GREEN);
                     lblInlineError.setText("Login successful! Redirecting...");
 
-                    dispose(); // Close login window
+                    dispose();
                     if (user.getRole() == Role.ADMIN) {
                         new AdminDashboard().setVisible(true);
                     } else {

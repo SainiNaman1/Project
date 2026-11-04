@@ -39,7 +39,7 @@ class FareCalculatorTest {
         BigDecimal rajdhaniFare = FareCalculator.calculateSinglePassengerFare(rajdhani, TravelClass.THIRD_AC, distance);
         BigDecimal expressFare = FareCalculator.calculateSinglePassengerFare(express, TravelClass.THIRD_AC, distance);
 
-        assertTrue(rajdhaniFare.compareTo(expressFare) > 0, 
+        assertTrue(rajdhaniFare.compareTo(expressFare) > 0,
                 "Rajdhani fare (" + rajdhaniFare + ") must be higher than express fare (" + expressFare + ") due to premium multiplier");
     }
 

@@ -158,9 +158,6 @@ public class TrainDAOImpl implements TrainDAO {
         }
     }
 
-    /**
-     * Factory Method: Maps database row to polymorphic Train subclass.
-     */
     private Train mapRowToTrain(ResultSet rs) throws SQLException {
         long id = rs.getLong("id");
         String number = rs.getString("train_number");

@@ -4,12 +4,6 @@ import com.railway.model.enums.TrainType;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-/**
- * Abstract base class for all passenger trains.
- * Demonstrates ABSTRACTION, ENCAPSULATION, and the TEMPLATE/STRATEGY OOP patterns.
- * Specific train types override calculateBaseMultiplier() to implement
- * distinct pricing policies without procedural switch/if-else logic.
- */
 public abstract class Train {
     protected long id;
     protected String trainNumber;
@@ -34,15 +28,8 @@ public abstract class Train {
         this.active = active;
     }
 
-    /**
-     * Polymorphic method: Returns the premium pricing multiplier for this train category.
-     * Express trains return 1.00, while Rajdhani/Shatabdi return premium multipliers.
-     */
     public abstract BigDecimal calculateBaseMultiplier();
 
-    /**
-     * Polymorphic method: Returns the track priority level of this train (1 = highest).
-     */
     public abstract int getSpeedPriority();
 
     public long getId() {

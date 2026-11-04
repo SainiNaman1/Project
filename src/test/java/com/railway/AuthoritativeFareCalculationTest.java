@@ -39,14 +39,8 @@ class AuthoritativeFareCalculationTest {
     void testItemizedFareBreakdown() {
         int distanceKm = 1000;
         int paxCount = 1;
-        TravelClass travelClass = TravelClass.THIRD_AC; // multiplier 1.60
+        TravelClass travelClass = TravelClass.THIRD_AC;
 
-        // Expected math for Rajdhani:
-        // train multiplier = 1.50, baseRate = 1.40, classMultiplier = 1.60
-        // distanceFare = 1000 * 1.40 * 1.60 * 1.50 = 3360.00
-        // subtotal = 3360.00 + 40.00 (fee) = 3400.00
-        // gst (5%) = 3400.00 * 0.05 = 170.00
-        // total per pax = 3570.00
         FareBreakdownDTO breakdown = fareService.calculateFareBreakdown(rajdhaniTrain, travelClass, distanceKm, paxCount);
 
         assertNotNull(breakdown);
@@ -66,7 +60,7 @@ class AuthoritativeFareCalculationTest {
     @DisplayName("Total fare for multiple passengers must strictly scale with single passenger fare")
     void testMultiplePassengersScaling() {
         int distanceKm = 800;
-        TravelClass travelClass = TravelClass.SLEEPER; // multiplier 1.00
+        TravelClass travelClass = TravelClass.SLEEPER;
 
         BigDecimal singleFare = fareService.calculateSingleFare(expressTrain, travelClass, distanceKm);
         for (int pax = 2; pax <= 6; pax++) {

@@ -4,11 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Loads and caches application and database configuration properties.
- * Prioritizes environment variables (DB_URL, DB_USER, DB_PASSWORD, DB_DRIVER),
- * followed by classpath db.properties, with secure defaults.
- */
 public final class AppConfig {
 
     private static final Properties properties = new Properties();
@@ -35,20 +30,17 @@ public final class AppConfig {
     public static String getProperty(String key, String defaultValue) {
         if (!initialized) init();
 
-        // 1. Check matching Environment Variable (e.g. db.url -> DB_URL)
         String envKey = key.toUpperCase().replace('.', '_');
         String envVal = System.getenv(envKey);
         if (envVal != null && !envVal.isBlank()) {
             return envVal.trim();
         }
 
-        // 2. Check loaded properties file
         String propVal = properties.getProperty(key);
         if (propVal != null && !propVal.isBlank()) {
             return propVal.trim();
         }
 
-        // 3. Fallback to default
         return defaultValue;
     }
 

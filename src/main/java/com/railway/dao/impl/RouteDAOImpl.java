@@ -100,7 +100,7 @@ public class RouteDAOImpl implements RouteDAO {
 
     @Override
     public int calculateDistanceKm(Connection conn, long trainId, long fromStationId, long toStationId) throws SQLException {
-        // Enforce r1.stop_sequence < r2.stop_sequence to prevent reversed journey bookings
+
         String sql = "SELECT (r2.distance_from_origin_km - r1.distance_from_origin_km) AS distance " +
                      "FROM route_stops r1, route_stops r2 " +
                      "WHERE r1.train_id = ? AND r1.station_id = ? " +
@@ -119,7 +119,7 @@ public class RouteDAOImpl implements RouteDAO {
                 }
             }
         }
-        return -1; // Indicates invalid route order or station not served by this train
+        return -1;
     }
 
     @Override

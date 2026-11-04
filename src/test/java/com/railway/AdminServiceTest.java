@@ -84,7 +84,7 @@ class AdminServiceTest {
     @Test
     @DisplayName("TC-10: Passenger session attempting admin operation must throw UnauthorizedException")
     void testPassengerDeniedAdminOperations() {
-        // Set session user as standard passenger
+
         PassengerUser passenger = new PassengerUser(1L, "rahul", "hash", "Rahul", "r@test.com", "9876543210", LocalDateTime.now());
         SessionContext.setCurrentUser(passenger);
 

@@ -1,12 +1,6 @@
--- ============================================================================
--- Railway Management System (RMS)
--- MySQL 8.x Database Schema Definition (DDL)
--- ============================================================================
-
 CREATE DATABASE IF NOT EXISTS railway_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE railway_db;
 
--- 1. Users Table
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -20,7 +14,6 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_user_role (role)
 ) ENGINE=InnoDB;
 
--- 2. Stations Table
 CREATE TABLE IF NOT EXISTS stations (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     station_code VARCHAR(10) NOT NULL UNIQUE,
@@ -30,7 +23,6 @@ CREATE TABLE IF NOT EXISTS stations (
     INDEX idx_station_code (station_code)
 ) ENGINE=InnoDB;
 
--- 3. Trains Table
 CREATE TABLE IF NOT EXISTS trains (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     train_number VARCHAR(10) NOT NULL UNIQUE,
@@ -45,7 +37,6 @@ CREATE TABLE IF NOT EXISTS trains (
     INDEX idx_train_number (train_number)
 ) ENGINE=InnoDB;
 
--- 4. Route Stops Table
 CREATE TABLE IF NOT EXISTS route_stops (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     train_id BIGINT NOT NULL,
@@ -63,7 +54,6 @@ CREATE TABLE IF NOT EXISTS route_stops (
     INDEX idx_route_lookup (train_id, station_id)
 ) ENGINE=InnoDB;
 
--- 5. Physical Seats Layout Table
 CREATE TABLE IF NOT EXISTS seats (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     train_id BIGINT NOT NULL,
@@ -76,7 +66,6 @@ CREATE TABLE IF NOT EXISTS seats (
     INDEX idx_seat_class (train_id, travel_class)
 ) ENGINE=InnoDB;
 
--- 6. Reservations Table
 CREATE TABLE IF NOT EXISTS reservations (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     pnr_number VARCHAR(10) NOT NULL UNIQUE,
@@ -98,7 +87,6 @@ CREATE TABLE IF NOT EXISTS reservations (
     INDEX idx_user_bookings (user_id, booking_timestamp)
 ) ENGINE=InnoDB;
 
--- 7. Reservation Passengers Table
 CREATE TABLE IF NOT EXISTS reservation_passengers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     reservation_id BIGINT NOT NULL,
@@ -112,7 +100,6 @@ CREATE TABLE IF NOT EXISTS reservation_passengers (
     FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 8. Seat Assignments Table (with DB-level seat uniqueness per train & date)
 CREATE TABLE IF NOT EXISTS seat_assignments (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     train_id BIGINT NOT NULL,
@@ -127,7 +114,6 @@ CREATE TABLE IF NOT EXISTS seat_assignments (
     INDEX idx_date_availability (train_id, journey_date, seat_id, status)
 ) ENGINE=InnoDB;
 
--- 9. Railway Rules Table
 CREATE TABLE IF NOT EXISTS railway_rules (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     category VARCHAR(50) NOT NULL,
@@ -137,7 +123,6 @@ CREATE TABLE IF NOT EXISTS railway_rules (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 10. Audit Logs Table (Administrative actions and booking lifecycle events)
 CREATE TABLE IF NOT EXISTS audit_logs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NULL,

@@ -2,10 +2,6 @@ package com.railway.model;
 
 import java.util.Objects;
 
-/**
- * Represents a railway station in the railway network.
- * Demonstrates ENCAPSULATION.
- */
 public class Station {
     private long id;
     private String stationCode;

@@ -1,8 +1,5 @@
 package com.railway.model;
 
-/**
- * Represents official railway travel guidelines, baggage rules, and refund policies.
- */
 public class RailwayRule {
     private long id;
     private String category;

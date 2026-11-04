@@ -61,12 +61,11 @@ class AuthorizationServiceTest {
     @DisplayName("Passenger can only access own reservation; other passengers are rejected")
     void testReservationAccessBoundaries() {
         SessionContext.setCurrentUser(passenger1);
-        // Own booking (user id 10)
+
         assertDoesNotThrow(() -> AuthorizationService.requireReservationAccess(10L));
-        // Another passenger's booking (user id 20) -> must throw
+
         assertThrows(UnauthorizedException.class, () -> AuthorizationService.requireReservationAccess(20L));
 
-        // Admin can access anyone's booking
         SessionContext.setCurrentUser(adminUser);
         assertDoesNotThrow(() -> AuthorizationService.requireReservationAccess(10L));
         assertDoesNotThrow(() -> AuthorizationService.requireReservationAccess(20L));

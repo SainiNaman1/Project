@@ -11,9 +11,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Service interface governing train search, route inquiries, and dynamic fare computation.
- */
 public interface TrainService {
     List<Train> getAllActiveTrains() throws RailwayException;
     List<TrainSearchResult> getAllAvailableTrains(LocalDate journeyDate) throws RailwayException;

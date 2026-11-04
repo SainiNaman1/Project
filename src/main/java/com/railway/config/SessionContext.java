@@ -2,10 +2,6 @@ package com.railway.config;
 
 import com.railway.model.User;
 
-/**
- * Global session registry holding the currently authenticated user.
- * Thread-safe for desktop applications.
- */
 public final class SessionContext {
 
     private static User currentUser;

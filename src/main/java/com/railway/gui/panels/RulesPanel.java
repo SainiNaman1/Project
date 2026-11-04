@@ -14,10 +14,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
-/**
- * Read-only panel displaying railway baggage guidelines, cancellation refund slabs,
- * and passenger identification policies.
- */
 public class RulesPanel extends JPanel {
 
     private final TrainService trainService;

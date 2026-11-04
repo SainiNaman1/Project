@@ -29,9 +29,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Administrative panel for managing train fleet entries and toggling operational statuses.
- */
 public class TrainManagementPanel extends JPanel {
 
     private final AdminService adminService;
@@ -61,7 +58,6 @@ public class TrainManagementPanel extends JPanel {
         setLayout(new BorderLayout(12, 12));
         setBackground(new Color(248, 250, 252));
 
-        // Top Form Card
         JPanel formCard = UITheme.createCardPanel();
         formCard.setLayout(new GridBagLayout());
 
@@ -74,7 +70,6 @@ public class TrainManagementPanel extends JPanel {
         formCard.add(lblTitle, gbc);
         gbc.gridwidth = 1;
 
-        // Fields
         txtTrainNumber = addField(formCard, "Train Number:", 0, 1, gbc);
         txtTrainName = addField(formCard, "Train Name:", 1, 1, gbc);
 
@@ -111,14 +106,12 @@ public class TrainManagementPanel extends JPanel {
         txtBaseFare = addField(formCard, "Base Fare/km (INR):", 5, 1, gbc);
         txtBaseFare.setText("1.50");
 
-        // Action Button
         btnAddTrain = UITheme.createPrimaryButton("+ Register Train");
         gbc.gridx = 5; gbc.gridy = 3;
         formCard.add(btnAddTrain, gbc);
 
         add(formCard, BorderLayout.NORTH);
 
-        // Center Fleet Table
         String[] columns = {"ID", "Train No", "Train Name", "Type", "Origin", "Destination", "Base Fare/km", "Operational"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
@@ -132,7 +125,6 @@ public class TrainManagementPanel extends JPanel {
 
         add(new JScrollPane(tblTrains), BorderLayout.CENTER);
 
-        // Bottom Bar
         JPanel bottomBar = new JPanel(new BorderLayout());
         bottomBar.setBackground(Color.WHITE);
 

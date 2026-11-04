@@ -1,8 +1,5 @@
 package com.railway.model.enums;
 
-/**
- * Categorizes trains by operational speed and service tier.
- */
 public enum TrainType {
     RAJDHANI("Rajdhani Express"),
     SHATABDI("Shatabdi Express"),

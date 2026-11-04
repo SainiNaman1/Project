@@ -65,7 +65,7 @@ public class SeatDAOImpl implements SeatDAO {
 
     @Override
     public List<Seat> lockAvailableSeatsForUpdate(Connection conn, long trainId, LocalDate journeyDate, TravelClass travelClass, int count) throws SQLException {
-        // Concurrency defense: FOR UPDATE row-locks these available seats within the caller's transaction
+
         String sql = "SELECT s.id, s.train_id, s.travel_class, s.coach_number, s.seat_number, s.berth_type " +
                      "FROM seats s " +
                      "WHERE s.train_id = ? AND s.travel_class = ? " +
@@ -109,8 +109,7 @@ public class SeatDAOImpl implements SeatDAO {
 
     @Override
     public void deleteAssignmentsByReservationId(Connection conn, long reservationId) throws SQLException {
-        // Upon cancellation, seat assignment records are safely deleted (or updated to RELEASED)
-        // allowing seats to be re-booked immediately
+
         String sql = "DELETE FROM seat_assignments WHERE reservation_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, reservationId);

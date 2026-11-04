@@ -13,19 +13,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.stream.Collectors;
 
-/**
- * Automates initial schema creation, sample data provisioning, and self-healing
- * demo user credential verification for MySQL 8.x.
- */
 public final class SchemaInitializer {
 
     private SchemaInitializer() {
     }
 
-    /**
-     * Initializes the MySQL database if tables do not exist, and guarantees that default
-     * demo accounts (admin / Admin@123, rahul / Rahul@123) have valid BCrypt hashes.
-     */
     public static synchronized void initializeDatabase() {
         DatabaseConnection db = DatabaseConnection.getInstance();
         try (Connection conn = db.getConnection()) {
@@ -40,7 +32,6 @@ public final class SchemaInitializer {
                 ensureSchemaUpdates(conn);
             }
 
-            // Self-healing: verify demo credentials have valid BCrypt hashes
             ensureDefaultUser(conn, "admin", "Admin@123", "System Administrator", "admin@railway.gov.in", "9876543210", "ADMIN");
             ensureDefaultUser(conn, "rahul", "Rahul@123", "Rahul Sharma", "rahul.sharma@example.com", "9123456780", "PASSENGER");
             System.out.println("[SchemaInitializer] Default accounts verified and ready for sign in.");
@@ -61,7 +52,7 @@ public final class SchemaInitializer {
     }
 
     private static void ensureSchemaUpdates(Connection conn) {
-        // Ensure audit_logs table exists
+
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("CREATE TABLE IF NOT EXISTS audit_logs (" +
                     "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
@@ -88,7 +79,6 @@ public final class SchemaInitializer {
                     long id = rs.getLong("id");
                     String currentHash = rs.getString("password_hash");
 
-                    // Verify if the current hash checks out with the expected password
                     if (!PasswordUtil.checkPassword(expectedPassword, currentHash)) {
                         System.out.println("[SchemaInitializer] Syncing password hash for user: " + username);
                         String freshHash = PasswordUtil.hashPassword(expectedPassword);
@@ -99,7 +89,7 @@ public final class SchemaInitializer {
                         }
                     }
                 } else {
-                    // User does not exist, insert fresh
+
                     System.out.println("[SchemaInitializer] Creating missing demo user: " + username);
                     String freshHash = PasswordUtil.hashPassword(expectedPassword);
                     String insert = "INSERT INTO users (username, password_hash, full_name, email, phone_number, role) VALUES (?, ?, ?, ?, ?, ?)";
@@ -139,7 +129,7 @@ public final class SchemaInitializer {
                         try {
                             stmt.execute(sql);
                         } catch (SQLException e) {
-                            // Non-fatal notice for duplicate entries or DB switches
+
                         }
                     }
                 }

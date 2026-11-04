@@ -1,12 +1,9 @@
 package com.railway.model;
 
-import com.railway.model.enums.TrainType;
 import java.math.BigDecimal;
 
-/**
- * Represents a premier fully air-conditioned superfast express with onboard catering.
- * Demonstrates POLYMORPHISM by overriding fare calculation and speed priority.
- */
+import com.railway.model.enums.TrainType;
+
 public class RajdhaniExpress extends Train {
 
     public RajdhaniExpress() {
@@ -19,12 +16,12 @@ public class RajdhaniExpress extends Train {
 
     @Override
     public BigDecimal calculateBaseMultiplier() {
-        // 50% premium surcharge for priority express and onboard meals
+
         return new BigDecimal("1.50");
     }
 
     @Override
     public int getSpeedPriority() {
-        return 1; // Highest track priority
+        return 1;
     }
 }

@@ -41,11 +41,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Modern Operations & Administration Console.
- * Features a Persistent Left Navigation Sidebar, Executive Overview metrics,
- * Fleet management, live platform reassignment, and administrative audit trails.
- */
 public class AdminDashboard extends JFrame {
 
     public static final String CARD_OVERVIEW = "OVERVIEW";
@@ -62,7 +57,6 @@ public class AdminDashboard extends JFrame {
     private CardLayout cardLayout;
     private JPanel cardContainer;
 
-    // Overview metric labels
     private JLabel lblTotalTrains;
     private JLabel lblActiveTrains;
     private JLabel lblTotalReservations;
@@ -102,11 +96,9 @@ public class AdminDashboard extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
-        // 1. Persistent Left Navigation Sidebar
         JPanel sidebar = createSidebar();
         add(sidebar, BorderLayout.WEST);
 
-        // 2. Central Content Area (CardLayout)
         cardLayout = new CardLayout();
         cardContainer = new JPanel(cardLayout);
 
@@ -124,13 +116,11 @@ public class AdminDashboard extends JFrame {
         cardContainer.add(auditLogPanel, CARD_AUDIT_LOGS);
         cardContainer.add(rulesPanel, CARD_RULES);
 
-        // Top Header
         JPanel mainWrapper = new JPanel(new BorderLayout());
         JPanel topHeader = createTopHeader();
         mainWrapper.add(topHeader, BorderLayout.NORTH);
         mainWrapper.add(cardContainer, BorderLayout.CENTER);
 
-        // Bottom Status Bar
         JPanel statusBar = createStatusBar();
         mainWrapper.add(statusBar, BorderLayout.SOUTH);
 
@@ -142,13 +132,13 @@ public class AdminDashboard extends JFrame {
     private JPanel createSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(new Color(15, 23, 42)); // Dark Slate Admin Theme
+        sidebar.setBackground(new Color(15, 23, 42));
         sidebar.setPreferredSize(new Dimension(240, 0));
         sidebar.setBorder(BorderFactory.createEmptyBorder(20, 12, 20, 12));
 
         JLabel lblLogo = new JLabel("OPERATIONS CONSOLE");
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblLogo.setForeground(new Color(251, 191, 36)); // Gold Accent
+        lblLogo.setForeground(new Color(251, 191, 36));
         lblLogo.setAlignmentX(LEFT_ALIGNMENT);
 
         JLabel lblTag = new JLabel("High-Privilege Admin Portal");
@@ -245,7 +235,6 @@ public class AdminDashboard extends JFrame {
         panel.setBackground(new Color(248, 250, 252));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 24, 20, 24));
 
-        // Metric Cards Grid
         JPanel metricsGrid = new JPanel(new GridLayout(1, 5, 14, 14));
         metricsGrid.setOpaque(false);
 
@@ -271,7 +260,6 @@ public class AdminDashboard extends JFrame {
         metricsGrid.add(card5);
         panel.add(metricsGrid, BorderLayout.NORTH);
 
-        // Center Quick Actions & Guidelines
         JPanel centerCard = UITheme.createCardPanel();
         centerCard.setLayout(new BorderLayout(12, 12));
         centerCard.setBorder(BorderFactory.createCompoundBorder(
@@ -497,7 +485,7 @@ public class AdminDashboard extends JFrame {
 
             @Override
             protected void done() {
-                // Done loading
+
             }
         }.execute();
     }

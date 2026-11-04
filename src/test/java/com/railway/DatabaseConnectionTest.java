@@ -34,7 +34,6 @@ class DatabaseConnectionTest {
         boolean connected = db.testConnection();
         assumeTrue(connected, "Database connection is required for live integration test; skipping in sandbox/offline environment");
 
-        // 1. Ensure exact valid BCrypt hashes are in the database for admin and rahul
         String adminHash = PasswordUtil.hashPassword("Admin@123");
         String rahulHash = PasswordUtil.hashPassword("Rahul@123");
 
@@ -49,14 +48,12 @@ class DatabaseConnectionTest {
             }
         }
 
-        // 2. Test live login for admin
         AuthService authService = new AuthServiceImpl();
         User adminUser = authService.login("admin", "Admin@123");
         assertNotNull(adminUser);
         assertEquals("admin", adminUser.getUsername());
         assertTrue(adminUser.hasAdminPrivileges());
 
-        // 3. Test live login for rahul
         User rahulUser = authService.login("rahul", "Rahul@123");
         assertNotNull(rahulUser);
         assertEquals("rahul", rahulUser.getUsername());
@@ -64,7 +61,6 @@ class DatabaseConnectionTest {
 
         System.out.println("[Test] Both 'admin' and 'rahul' live logins succeeded!");
 
-        // 4. Verify trains exist
         TrainDAO trainDAO = new TrainDAOImpl();
         List<Train> trains = trainDAO.findAllActive();
         assertFalse(trains.isEmpty());

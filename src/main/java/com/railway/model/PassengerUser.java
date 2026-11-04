@@ -1,12 +1,9 @@
 package com.railway.model;
 
-import com.railway.model.enums.Role;
 import java.time.LocalDateTime;
 
-/**
- * Represents a standard passenger user of the self-service railway booking portal.
- * Demonstrates INHERITANCE and POLYMORPHISM.
- */
+import com.railway.model.enums.Role;
+
 public class PassengerUser extends User {
     private String phoneNumber;
 

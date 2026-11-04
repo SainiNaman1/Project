@@ -2,11 +2,6 @@ package com.railway.model.enums;
 
 import java.math.BigDecimal;
 
-/**
- * Represents the accommodation classes available on Indian Railways trains.
- * Each class carries an official code and a specific fare multiplier applied
- * against base train distance rates.
- */
 public enum TravelClass {
     FIRST_AC("1A", "AC First Class", new BigDecimal("3.50")),
     SECOND_AC("2A", "AC 2-Tier", new BigDecimal("2.25")),
@@ -36,9 +31,6 @@ public enum TravelClass {
         return fareMultiplier;
     }
 
-    /**
-     * Looks up a TravelClass by its short code (e.g., '3A' -> THIRD_AC).
-     */
     public static TravelClass fromCode(String code) {
         if (code == null) return null;
         for (TravelClass tc : values()) {

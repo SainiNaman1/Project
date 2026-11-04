@@ -5,11 +5,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- * Manages JDBC database connections for MySQL 8.x.
- * Connection configuration is loaded via AppConfig (supporting environment
- * variables and classpath db.properties).
- */
 public final class DatabaseConnection {
 
     private static volatile DatabaseConnection instance;
@@ -38,9 +33,6 @@ public final class DatabaseConnection {
         return instance;
     }
 
-    /**
-     * Obtains a fresh JDBC Connection from configured settings.
-     */
     public Connection getConnection() throws SQLException {
         String url = AppConfig.getDbUrl();
         String user = AppConfig.getDbUser();

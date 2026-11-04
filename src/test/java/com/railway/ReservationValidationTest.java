@@ -32,7 +32,6 @@ class ReservationValidationTest {
         Station src = new Station(1L, "NDLS", "New Delhi", "New Delhi", "Delhi");
         Station dst = new Station(2L, "MMCT", "Mumbai Central", "Mumbai", "Maharashtra");
 
-        // 1. Future active booking -> IS cancellable
         Reservation futureBooking = new Reservation(
                 1L, "2819283746", 10L, 12952L,
                 LocalDate.now().plusDays(3),
@@ -41,11 +40,9 @@ class ReservationValidationTest {
         );
         assertTrue(futureBooking.isCancellable(), "Future confirmed booking must be cancellable");
 
-        // 2. Already cancelled booking -> NOT cancellable
         futureBooking.setStatus(BookingStatus.CANCELLED);
         assertFalse(futureBooking.isCancellable(), "Already cancelled booking must NOT be cancellable");
 
-        // 3. Past journey date -> NOT cancellable
         Reservation pastBooking = new Reservation(
                 2L, "3918274650", 10L, 12952L,
                 LocalDate.now().minusDays(1),

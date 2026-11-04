@@ -32,11 +32,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Enhanced Personal Bookings History panel.
- * Features PNR search, status filtering, master-detail passenger layout breakdown,
- * and cancellation confirmations with real-time seat releases.
- */
 public class MyBookingsPanel extends JPanel {
 
     private final ReservationService reservationService;
@@ -68,7 +63,6 @@ public class MyBookingsPanel extends JPanel {
         setBackground(new Color(248, 250, 252));
         setBorder(BorderFactory.createEmptyBorder(16, 20, 16, 20));
 
-        // 1. Top Search and Filter Card
         JPanel topCard = UITheme.createCardPanel();
         topCard.setLayout(new GridBagLayout());
         topCard.setBorder(BorderFactory.createCompoundBorder(
@@ -83,7 +77,6 @@ public class MyBookingsPanel extends JPanel {
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         topCard.add(lblTitle, gbc);
 
-        // Search by PNR
         JLabel lblSearch = new JLabel("Search PNR:");
         lblSearch.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 1;
@@ -95,7 +88,6 @@ public class MyBookingsPanel extends JPanel {
         gbc.gridx = 1; gbc.gridy = 1;
         topCard.add(txtSearchPnr, gbc);
 
-        // Filter by Status
         JLabel lblFilter = new JLabel("Status:");
         lblFilter.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridx = 2; gbc.gridy = 1;
@@ -120,7 +112,6 @@ public class MyBookingsPanel extends JPanel {
 
         add(topCard, BorderLayout.NORTH);
 
-        // 2. Master-Detail Split: Top Bookings Table, Bottom Passenger Breakdown
         String[] bookCols = {"PNR Number", "Train No & Name", "Journey Date", "Route", "Class", "Passengers", "Total Fare", "Status"};
         bookingTableModel = new DefaultTableModel(bookCols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -135,7 +126,6 @@ public class MyBookingsPanel extends JPanel {
         JScrollPane bookScroll = new JScrollPane(tblBookings);
         bookScroll.setBorder(BorderFactory.createTitledBorder("Master Bookings"));
 
-        // Bottom Detail: Passengers in Selected Booking
         String[] passCols = {"S.No", "Passenger Name", "Age", "Gender", "Assigned Coach", "Seat Number", "Berth Type"};
         passengerTableModel = new DefaultTableModel(passCols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -152,7 +142,6 @@ public class MyBookingsPanel extends JPanel {
         splitPane.setBorder(null);
         add(splitPane, BorderLayout.CENTER);
 
-        // 3. Bottom Action Bar
         JPanel bottomBar = new JPanel(new BorderLayout());
         bottomBar.setBackground(Color.WHITE);
         bottomBar.setBorder(BorderFactory.createCompoundBorder(

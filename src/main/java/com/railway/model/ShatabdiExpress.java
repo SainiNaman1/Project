@@ -3,10 +3,6 @@ package com.railway.model;
 import com.railway.model.enums.TrainType;
 import java.math.BigDecimal;
 
-/**
- * Represents a daytime intercity express with chair car configurations.
- * Demonstrates POLYMORPHISM.
- */
 public class ShatabdiExpress extends Train {
 
     public ShatabdiExpress() {
@@ -19,7 +15,7 @@ public class ShatabdiExpress extends Train {
 
     @Override
     public BigDecimal calculateBaseMultiplier() {
-        // 35% premium for intercity high-speed travel
+
         return new BigDecimal("1.35");
     }
 

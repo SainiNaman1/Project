@@ -15,10 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-/**
- * Renders an official ASCII/document-style journey ticket preview,
- * supporting local printing via Java PrinterJob.
- */
 public class TicketPanel extends JPanel {
 
     private final Runnable onBackAction;
@@ -35,7 +31,6 @@ public class TicketPanel extends JPanel {
         setLayout(new BorderLayout(12, 12));
         setBackground(new Color(248, 250, 252));
 
-        // Top Navigation Bar
         JPanel topBar = UITheme.createCardPanel();
         topBar.setLayout(new BorderLayout());
 
@@ -56,7 +51,6 @@ public class TicketPanel extends JPanel {
         topBar.add(rightButtons, BorderLayout.EAST);
         add(topBar, BorderLayout.NORTH);
 
-        // Center: Formatted Ticket Text Area
         txtTicketContent = new JTextArea();
         txtTicketContent.setEditable(false);
         txtTicketContent.setFont(new Font("Consolas", Font.PLAIN, 13));

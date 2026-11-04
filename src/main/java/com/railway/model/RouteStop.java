@@ -2,10 +2,6 @@ package com.railway.model;
 
 import java.time.LocalTime;
 
-/**
- * Represents an individual scheduled station stop along a train's journey.
- * Demonstrates COMPOSITION (belongs to a train route).
- */
 public class RouteStop {
     private long id;
     private long trainId;

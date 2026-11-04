@@ -39,11 +39,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
-/**
- * Passenger train inquiry and search panel.
- * Displays all available trains by default and supports route filtering
- * and real-time keyword filtering.
- */
 public class TrainSearchPanel extends JPanel {
 
     @FunctionalInterface
@@ -91,12 +86,10 @@ public class TrainSearchPanel extends JPanel {
         setLayout(new BorderLayout(12, 12));
         setBackground(new Color(248, 250, 252));
 
-        // Top Search & Filter Container
         JPanel topContainer = new JPanel();
         topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.Y_AXIS));
         topContainer.setOpaque(false);
 
-        // Filter Controls Card
         JPanel searchCard = UITheme.createCardPanel();
         searchCard.setLayout(new GridBagLayout());
 
@@ -104,7 +97,6 @@ public class TrainSearchPanel extends JPanel {
         gbc.insets = new Insets(4, 6, 4, 6);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Source Station
         JLabel lblSrc = new JLabel("From Station:");
         lblSrc.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.3;
@@ -115,7 +107,6 @@ public class TrainSearchPanel extends JPanel {
         gbc.gridx = 0; gbc.gridy = 1;
         searchCard.add(cmbSource, gbc);
 
-        // Destination Station
         JLabel lblDst = new JLabel("To Station:");
         lblDst.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.3;
@@ -126,7 +117,6 @@ public class TrainSearchPanel extends JPanel {
         gbc.gridx = 1; gbc.gridy = 1;
         searchCard.add(cmbDest, gbc);
 
-        // Journey Date
         JLabel lblDate = new JLabel("Journey Date (YYYY-MM-DD):");
         lblDate.setFont(UITheme.FONT_BODY_BOLD);
         gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0.2;
@@ -137,12 +127,10 @@ public class TrainSearchPanel extends JPanel {
         gbc.gridx = 2; gbc.gridy = 1;
         searchCard.add(txtJourneyDate, gbc);
 
-        // Filter / Search Button
         btnSearch = UITheme.createPrimaryButton("Search / Filter");
         gbc.gridx = 3; gbc.gridy = 1; gbc.weightx = 0.1;
         searchCard.add(btnSearch, gbc);
 
-        // Show All Trains Button
         btnShowAll = UITheme.createSecondaryButton("Show All Trains");
         gbc.gridx = 4; gbc.gridy = 1; gbc.weightx = 0.1;
         searchCard.add(btnShowAll, gbc);
@@ -150,7 +138,6 @@ public class TrainSearchPanel extends JPanel {
         topContainer.add(searchCard);
         topContainer.add(Box.createVerticalStrut(6));
 
-        // Quick Search Toolbar
         JPanel quickBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
         quickBar.setBackground(Color.WHITE);
         quickBar.setBorder(BorderFactory.createCompoundBorder(
@@ -170,7 +157,6 @@ public class TrainSearchPanel extends JPanel {
         topContainer.add(quickBar);
         add(topContainer, BorderLayout.NORTH);
 
-        // Center Table
         String[] columns = {
                 "Train No", "Train Name", "Type", "From Station", "To Station",
                 "Departure", "Arrival", "Distance", "Available Seats (2A/3A/SL/CC)", "Min Fare"
@@ -195,22 +181,20 @@ public class TrainSearchPanel extends JPanel {
             btnBookNow.setEnabled(selected);
         });
 
-        // Set optimal column widths
-        tblResults.getColumnModel().getColumn(0).setPreferredWidth(85);   // Train No
-        tblResults.getColumnModel().getColumn(1).setPreferredWidth(190);  // Train Name
-        tblResults.getColumnModel().getColumn(2).setPreferredWidth(130);  // Type
-        tblResults.getColumnModel().getColumn(3).setPreferredWidth(150);  // From Station
-        tblResults.getColumnModel().getColumn(4).setPreferredWidth(150);  // To Station
-        tblResults.getColumnModel().getColumn(5).setPreferredWidth(80);   // Departure
-        tblResults.getColumnModel().getColumn(6).setPreferredWidth(80);   // Arrival
-        tblResults.getColumnModel().getColumn(7).setPreferredWidth(85);   // Distance
-        tblResults.getColumnModel().getColumn(8).setPreferredWidth(210);  // Seats
-        tblResults.getColumnModel().getColumn(9).setPreferredWidth(95);   // Min Fare
+        tblResults.getColumnModel().getColumn(0).setPreferredWidth(85);
+        tblResults.getColumnModel().getColumn(1).setPreferredWidth(190);
+        tblResults.getColumnModel().getColumn(2).setPreferredWidth(130);
+        tblResults.getColumnModel().getColumn(3).setPreferredWidth(150);
+        tblResults.getColumnModel().getColumn(4).setPreferredWidth(150);
+        tblResults.getColumnModel().getColumn(5).setPreferredWidth(80);
+        tblResults.getColumnModel().getColumn(6).setPreferredWidth(80);
+        tblResults.getColumnModel().getColumn(7).setPreferredWidth(85);
+        tblResults.getColumnModel().getColumn(8).setPreferredWidth(210);
+        tblResults.getColumnModel().getColumn(9).setPreferredWidth(95);
 
         JScrollPane scrollPane = new JScrollPane(tblResults);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Bottom Action Bar
         JPanel bottomBar = new JPanel(new BorderLayout());
         bottomBar.setBackground(Color.WHITE);
         bottomBar.setBorder(BorderFactory.createCompoundBorder(
@@ -231,7 +215,6 @@ public class TrainSearchPanel extends JPanel {
         bottomBar.add(rightActions, BorderLayout.EAST);
         add(bottomBar, BorderLayout.SOUTH);
 
-        // Event Listeners
         btnSearch.addActionListener(e -> performSearch());
         btnShowAll.addActionListener(e -> {
             cmbSource.setSelectedItem(ALL_STATIONS);
@@ -240,7 +223,6 @@ public class TrainSearchPanel extends JPanel {
             loadAllTrains();
         });
 
-        // Real-time keyword filter
         txtQuickFilter.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) { applyFilter(); }
@@ -304,7 +286,6 @@ public class TrainSearchPanel extends JPanel {
                     cmbSource.removeAllItems();
                     cmbDest.removeAllItems();
 
-                    // Add "All Stations" option at top
                     cmbSource.addItem(ALL_STATIONS);
                     cmbDest.addItem(ALL_STATIONS);
 
@@ -313,11 +294,9 @@ public class TrainSearchPanel extends JPanel {
                         cmbDest.addItem(s);
                     }
 
-                    // Default selection to "All Stations"
                     cmbSource.setSelectedItem(ALL_STATIONS);
                     cmbDest.setSelectedItem(ALL_STATIONS);
 
-                    // Immediately load all trains so the list is not empty!
                     loadAllTrains();
 
                 } catch (Exception ex) {
@@ -366,13 +345,11 @@ public class TrainSearchPanel extends JPanel {
         Station to = (Station) cmbDest.getSelectedItem();
         String dateText = txtJourneyDate.getText().trim();
 
-        // If both are All Stations or unset, show all trains
         if (from == null || to == null || (from.equals(ALL_STATIONS) && to.equals(ALL_STATIONS))) {
             loadAllTrains();
             return;
         }
 
-        // If one is specific and one is all, prompt the user
         if (from.equals(ALL_STATIONS) || to.equals(ALL_STATIONS)) {
             JOptionPane.showMessageDialog(this,
                     "To filter by a route, please select both boarding and destination stations,\nor choose '-- All Stations --' to view the entire fleet.",
@@ -450,7 +427,6 @@ public class TrainSearchPanel extends JPanel {
             String arrTime = res.getDestStop() != null && res.getDestStop().getArrivalTime() != null ?
                     res.getDestStop().getArrivalTime().toString() : "N/A";
 
-            // Build seat summary string across classes
             StringBuilder seatsSummary = new StringBuilder();
             for (TravelClass tc : new TravelClass[]{TravelClass.FIRST_AC, TravelClass.SECOND_AC, TravelClass.THIRD_AC, TravelClass.SLEEPER, TravelClass.CHAIR_CAR}) {
                 Integer count = res.getAvailableSeats().get(tc);
@@ -463,7 +439,6 @@ public class TrainSearchPanel extends JPanel {
                 seatsSummary.append("Checking...");
             }
 
-            // Minimum starting fare
             String minFare = res.getEstimatedFares().values().stream()
                     .filter(f -> f != null && f.compareTo(BigDecimal.ZERO) > 0)
                     .min(BigDecimal::compareTo)

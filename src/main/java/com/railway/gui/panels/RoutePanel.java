@@ -16,10 +16,6 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Displays the complete station route itinerary, scheduled halt times,
- * and live platform numbers for a selected train.
- */
 public class RoutePanel extends JPanel {
 
     private final TrainService trainService;
@@ -38,7 +34,6 @@ public class RoutePanel extends JPanel {
         setLayout(new BorderLayout(12, 12));
         setBackground(new Color(248, 250, 252));
 
-        // Top Filter Bar
         JPanel topBar = UITheme.createCardPanel();
         topBar.setLayout(new FlowLayout(FlowLayout.LEFT, 16, 6));
 
@@ -56,7 +51,6 @@ public class RoutePanel extends JPanel {
 
         add(topBar, BorderLayout.NORTH);
 
-        // Center Table
         String[] columns = {"Stop #", "Station Code", "Station Name", "Arrival", "Departure", "Halt (min)", "Distance (km)", "Platform"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
